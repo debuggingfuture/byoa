@@ -29,6 +29,9 @@ Build Your OWNED Agent
 
 
  ## Contracts
+
+- Note pre-built contracts are committed to the codebase 
+- on changes
  - cd packages/contract
  - forge build
- - ABI at e.g. out/Contract.sol/Contract.json
+ - ABI and binary output at e.g. out/Contract.sol/Contract.json
