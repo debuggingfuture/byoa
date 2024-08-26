@@ -1,0 +1,28 @@
+{
+    "name": "@repo/bot",
+    "version": "0.0.0",
+    "private": true,
+    "license": "MIT",
+    "type":"module",
+    "publishConfig": {
+      "access": "public"
+    },
+    "scripts": {
+      "dev": "tsc -w & sleep 1 && node dist/index.js"
+    },
+    "dependencies": {
+      "@xmtp/message-kit": "^0.0.9"
+    },
+    "devDependencies": {
+      "@repo/eslint-config": "workspace:*",
+      "@repo/typescript-config": "workspace:*",
+      "nodemon": "^3.1.0",
+      "typescript": "^5.4.3"
+    },
+    "engines": {
+      "node": ">=20"
+    }
+
+  }
+
+  

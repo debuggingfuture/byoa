@@ -7,6 +7,11 @@
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
+  "pnpm":{
+    "overrides": {
+      "@noble/secp256k1": "2.1.0"
+    }
+  },
   "devDependencies": {
     "prettier": "^3.2.5",
     "turbo": "^2.0.14",
