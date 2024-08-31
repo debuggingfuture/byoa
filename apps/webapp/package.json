@@ -1,14 +1,9 @@
 {
-  "name": "web",
+  "name": "webapp",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev --turbo",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
   "dependencies": {
+    "@craco/craco": "^7.1.0",
     "@lit-protocol/auth-helpers": "^6.4.5",
     "@lit-protocol/constants": "^6.4.5",
     "@lit-protocol/lit-auth-client": "^6.4.5",
@@ -18,6 +13,13 @@
     "@repo/ui": "workspace:*",
     "@simplewebauthn/browser": "^10.0.0",
     "@tanstack/react-query": "^5.52.1",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.106",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
     "@wagmi/core": "^2.13.4",
     "@xmtp/content-type-reaction": "^1.1.9",
     "@xmtp/content-type-remote-attachment": "^1.1.9",
@@ -32,22 +34,32 @@
     "crypto": "npm:crypto-browserify",
     "crypto-browserify": "^3.12.0",
     "ethers": "^5.7.2",
-    "next": "^14.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.1",
+    "react-scripts": "5.0.1",
+    "stream-browserify": "^3.0.0",
+    "typescript": "^4.9.5",
     "viem": "^2.20.0",
-    "wagmi": "^2.12.7"
+    "wagmi": "^2.12.7",
+    "web-vitals": "^2.1.4",
+    "webpack":"^5.94.0"
   },
-  "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "@xmtp/bot-kit-pro": "0.2.10",
-    "eslint": "^8",
-    "eslint-config-next": "15.0.0-rc.0",
-    "typescript": "^5.4.5"
+  "scripts": {
+    "dev": "craco start",
+    "build": "craco build",
+    "test": "craco test"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
