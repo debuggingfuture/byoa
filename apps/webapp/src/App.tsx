@@ -6,14 +6,19 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import './App.css';
-import Inbox from "./Inbox";
+import Chat from "./routes/Chat";
 import Root from "./routes/Root";
+import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { mainnet } from "wagmi/chains";
+import { WagmiProvider } from "wagmi";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Root />}>
-      <Route path="inbox" element={<Inbox />} />
+      <Route path="chat" element={<Chat />} />
       <Route path="test" element={<div> hi</div>} />
 
       <Route path="*" element={<div> no match</div>} />
@@ -22,10 +27,27 @@ const router = createBrowserRouter(
   )
 );
 
+
+const queryClient = new QueryClient();
+
+
+const wagmiConfig = getDefaultConfig({
+  appName: 'My RainbowKit App',
+  projectId: 'YOUR_PROJECT_ID',
+  chains: [mainnet],
+  ssr: true, // If your dApp uses server side rendering (SSR)
+});
+
 function App() {
   return (
     <React.StrictMode>
-      <RouterProvider router={router} />
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider>
+            <RouterProvider router={router} />
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
     </React.StrictMode>
   );
 }
