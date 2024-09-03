@@ -9,7 +9,6 @@ import * as crypto from "crypto"
 
 import React, { useState, useEffect, useCallback } from "react";
 import {
-    Client,
     useStreamMessages,
     useClient,
     useMessages,
@@ -21,6 +20,8 @@ import {
     attachmentContentTypeConfig,
     reactionContentTypeConfig,
     replyContentTypeConfig,
+    Client,
+    useSendMessage,
 } from "@xmtp/react-sdk";
 
 // import { ContentTypeId } from "@xmtp/content-type-primitives";
@@ -47,6 +48,9 @@ import {
 
 import { useAccount, useWalletClient } from 'wagmi'
 import { useEthersSigner } from '../adapters/signer';
+import Inbox from '../components/Inbox';
+import { Recipient } from '../domain/inbox';
+import { Receipt } from 'lucide-react';
 
 // TODO Lit connect error at Next server runtime
 // consider migrate to server
@@ -79,9 +83,105 @@ const MessagesList = ({ conversation }: { conversation: any }) => {
 
 // TODO optimize to avoid re-render
 
-const ConversationList = () => {
+const InboxContainer = () => {
 
     const { conversations } = useConversations();
+
+    const { sendMessage } = useSendMessage();
+    const onError = useCallback((err: Error) => {
+        console.log('on xmtp error', err);
+    }, []);
+
+    // ensure conversation started when opening thread
+    const { startConversation, isLoading: isLoadingStartConversation } = useStartConversation({
+        // conversationId: '',
+        onError,
+    });
+
+    // console.log('isLoadingStartConversation', isLoadingStartConversation)
+    // Sample data
+    const recipients: Recipient[] = [
+        { id: 1, name: 'Alice', avatar: 'A', address: '0x7848D06245Ec2de45Ed9BB9853E8346030B1dd4A' },
+        { id: 2, name: 'Bob', avatar: 'B', address: '0x3F11b27F323b62B159D2642964fa27C46C841897' },
+        { id: 3, name: 'Charlie', avatar: 'C', address: '0xD99e7e1760E1a850Bc6c99e3025c5f55d5DFDfeD' },
+    ];
+
+
+
+
+    // TODO recipients = curated + existing recipeints
+    const { canMessage } = useCanMessage();
+
+
+    // TODO cannot avoid xmtp deps, move inside
+    useEffect(() => {
+        if (recipients.length === 0) {
+            return;
+        }
+        console.log('start', conversations, conversations?.[0]);
+        Promise.all(recipients.map(recipient => {
+            return startConversation(recipient.address, "hi")
+        })).then(
+            (results: any) => {
+                console.log('created');
+                const conversations2 = results.map(
+                    (result: any) => {
+                        const { cachedConversation, conversation } = result;
+
+                        return conversation;
+                    }
+                )
+
+
+
+            }
+
+
+        )
+
+    }, [])
+
+
+
+
+    const sendXmtpMessage = async (conversation: any, messageContent: string) => {
+
+        const peerAddress = '0x3F11b27F323b62B159D2642964fa27C46C841897';
+
+        if (!conversation) {
+            console.log('no conversation');
+            return;
+        }
+
+
+
+        const canMessageResult = await canMessage(peerAddress);
+        console.log('canMessage', canMessageResult, conversation);
+
+        // // if (!conversation || isLoadingStartConversation) {
+        // const { conversation } = await startConversation(peerAddress, "yo");
+        // // Load all messages in the conversation
+
+        // // const canMessageResult = await client?.canMessage(peerAddress)
+        // // console.log('canMessage', canMessageResult);
+        // console.log(conversation, isLoadingStartConversation)
+        // if (!conversation || isLoadingStartConversation) {
+        //     console.log('loading');
+        //     return;
+        // }
+        // console.log('send messages', conversation)
+        // // const messages = await conversation.messages();
+        // // Send a message
+        // await conversation.send("gm");
+
+        const results = await sendMessage(conversation, messageContent);
+
+        console.log('results', results);
+        // // Listen for new messages in the conversation
+        // for await (const message of await conversation.streamMessages()) {
+        //     console.log(`[${message.senderAddress}]: ${message.content}`);
+        // }
+    }
 
     return (
         <div>
@@ -89,13 +189,16 @@ const ConversationList = () => {
             {conversations.length}
             {JSON.stringify(conversations)}
             {
-                conversations.map((conversation: any, i: any) => {
-                    const { topic } = conversation;
-                    return (
-                        <MessagesList key={topic} conversation={conversation} />
-                    )
-                })
+                // conversations.map((conversation: any, i: any) => {
+                //     const { topic } = conversation;
+                //     return (
+                //         <MessagesList key={topic} conversation={conversation} />
+                //     )
+                // })
             }
+            <Inbox recipients={recipients} conversations={conversations}
+                sendXmtpMessage={sendXmtpMessage}
+            />
         </div>
     )
 
@@ -111,6 +214,14 @@ const ChatContainer = () => {
     const LIT_PKP_PUBLIC_KEY = process.env.REACT_APP_LIT_PKP_PUBLIC_KEY || process.env.LIT_PKP_PUBLIC_KEY!;
 
     const signer = useEthersSigner();
+
+    const XMTP_OPTIONS = {
+        env: "dev" as "dev",
+        persistConversations: true,
+    }
+
+
+
 
     // const account = useAccount();
     // console.log('account', account);
@@ -159,35 +270,16 @@ const ChatContainer = () => {
 
     }
 
-    const onError = useCallback((err: Error) => {
-        // handle error
-        console.log('onError', err);
-    }, []);
 
 
+    const { client: xmtpClient, initialize, isLoading, error } = useClient();
+    console.log('client', xmtpClient, error);
 
-    const { client, initialize, isLoading, error } = useClient();
-    console.log('client', client, error);
 
-
-    const { startConversation, isLoading: isLoadingStartConversation } = useStartConversation({
-        // conversationId: '',
-        onError,
-    });
 
     useEffect(() => {
 
-        const options = {
-
-            persistConversations: true,
-            // env: "dev" as XmtpEnv,
-            env: "dev" as "dev"
-        };
-
-
-
-
-        initialize({ options, signer: signer })
+        initialize({ options: XMTP_OPTIONS, signer: signer })
 
     }, [signer]);
 
@@ -198,8 +290,7 @@ const ChatContainer = () => {
     // }, []);
 
 
-    console.log('isLoadingStartConversation', isLoadingStartConversation);
-    const { canMessage } = useCanMessage();
+    // console.log('isLoadingStartConversation', isLoadingStartConversation);
 
 
     // const [history, setHistory] = useState(null);
@@ -210,33 +301,18 @@ const ChatContainer = () => {
 
         const peerAddress = '0x3F11b27F323b62B159D2642964fa27C46C841897';
 
-        const { conversation } = await startConversation(peerAddress, "yo");
-        // Load all messages in the conversation
-
-        // const canMessageResult = await client?.canMessage(peerAddress)
-        // console.log('canMessage', canMessageResult);
-
-        if (!conversation || isLoadingStartConversation) {
-            console.log('loading');
-            return;
-        }
+        //     console.log('loading');
+        //     return;
+        // }
         console.log('send messages')
         // const messages = await conversation.messages();
         // Send a message
-        await conversation.send("gm");
-        // Listen for new messages in the conversation
-        for await (const message of await conversation.streamMessages()) {
-            console.log(`[${message.senderAddress}]: ${message.content}`);
-        }
+        // await conversation.send("gm");
+        // // Listen for new messages in the conversation
+        // for await (const message of await conversation.streamMessages()) {
+        //     console.log(`[${message.senderAddress}]: ${message.content}`);
+        // }
     }
-
-
-    console.log('isLoading', isLoading);
-
-
-    // // NEXT_PUBLIC=
-
-    // const { generatePrivateKey } = api;
 
     // const { pkpAddress, generatedPublicKey } = await generatePrivateKey({
     //     pkpSessionSigs,
@@ -252,16 +328,20 @@ const ChatContainer = () => {
                 !client && <button onClick={initXmtp}>Connect to XMTP</button>
             } */}
 
+            {
+                xmtpClient && (<div className="badge">XMTP connected</div>)
+            }
+            <br />
+
             <button onClick={() => {
                 sendMessage('hihi');
             }}>send message</button>
 
-
-            Test
-            Conversations
-
-            <ConversationList />
-
+            {
+                xmtpClient && (
+                    <InboxContainer />
+                )
+            }
 
         </div>
     )
@@ -279,9 +359,11 @@ function Chat() {
     return (
         <div className="App">
             <XMTPProvider contentTypeConfigs={contentTypeConfigs}>
-                <div>Talk to your newly created agent</div>
-                <div className="badge">default</div>
+                <h2 className="text-lg font-bold">
+                    Talk to your newly created agent!
+                </h2>
                 <ChatContainer />
+
 
             </XMTPProvider>
         </div>
