@@ -16,40 +16,16 @@ import {
 import '@xyflow/react/dist/style.css';
 import ButtonEdge from '../components/ButtonEdge';
 
-import { Model } from '../domain/llm';
 import { on } from 'events';
-
-// Define the structure for our AI agent
-interface AIAgent {
-    id: string;
-    name: string;
-    model: string;
-}
-
-// Define the structure for our System Prompt
-interface SystemPrompt {
-    id: string;
-    agentId: string;
-    prompt: string;
-}
+import SystemPromptNode from '../components/SystemPromptNode';
+import AgentNode from '../components/AgentNode';
+import { AIAgent, SystemPrompt, Model } from '../domain/agent';
 
 
 const edgeTypes = {
     button: ButtonEdge,
 };
 
-// Custom node properties
-type AgentNodeProps = Node<{
-    agent: AIAgent;
-    onNameChange: (id: string, name: string) => void;
-    onModelChange: (id: string, model: string) => void;
-}>
-
-
-type SystemPromptNodeProps = Node<{
-    systemPrompt: SystemPrompt;
-    onPromptInputChange: (id: string, prompt: string) => void;
-}>
 
 
 enum NodeType {
@@ -60,66 +36,7 @@ enum NodeType {
 
 // Note: You have to create a new data object on a node to notify React Flow about data changes.
 
-// Custom node component
-const AgentNode: React.FC<NodeProps<AgentNodeProps>> = (props: NodeProps<AgentNodeProps>) => {
-    const { agent, onNameChange, onModelChange } = props?.data;
 
-    const supportedModels = Object.values(Model)
-
-    return (
-        <div className="gradient wrapper">
-            <div className="inner">
-                Agent Node
-                <input
-                    type="text"
-                    value={agent.name}
-                    onChange={(e) => onNameChange(agent.id, e.target.value)}
-                    className="mb-2 p-2 border rounded"
-                    placeholder="Agent Name"
-                />
-                <select
-                    value={agent.model}
-                    onChange={(e) => onModelChange(agent.id, e.target.value)}
-                    className="p-2 border rounded"
-                >
-                    {
-                        supportedModels.map(
-                            (model) => (
-                                <option key={model} value={model}>{model}</option>
-                            )
-                        )
-                    }
-                </select>
-            </div>
-        </div>
-    );
-};
-
-const SystemPromptNode: React.FC<NodeProps<SystemPromptNodeProps>> = (props: NodeProps<SystemPromptNodeProps>) => {
-    const { systemPrompt, onPromptInputChange } = props?.data;
-
-    // TODO fix onchange value
-
-    return (
-        <div className="gradient wrapper">
-            <div className="inner">
-                <div className="p-4 bg-white rounded shadow">
-                    <textarea
-                        value={systemPrompt?.prompt}
-                        rows={4}
-                        cols={50}
-                        onChange={(e) => onPromptInputChange(systemPrompt?.id, e.target.value)}
-                        className="mb-2 p-2 border rounded"
-                        placeholder="System Prompt"
-                    />
-
-                </div>
-
-            </div>
-
-        </div>
-    );
-};
 
 
 const nodeTypes: NodeTypes = {
@@ -173,8 +90,6 @@ const AIAgentFlowEditor: React.FC = () => {
 
 
 
-
-    // replace easier than ref
     const handlePromptInputChange = useCallback((agentId: string, input: string) => {
         console.log('input', agentId, input, systemPrompts);
 
@@ -202,6 +117,11 @@ const AIAgentFlowEditor: React.FC = () => {
             )
         );
     }, []);
+
+
+    const deployAgents = () => {
+        console.log('Deploying agents', agents, systemPrompts);
+    }
 
     const addNewAgent = useCallback(() => {
         const newAgent: AIAgent = {
@@ -280,6 +200,12 @@ const AIAgentFlowEditor: React.FC = () => {
                 className="mt-4 p-2 bg-blue-500 text-white rounded"
             >
                 Add New Agent
+            </button>
+            <button
+                onClick={deployAgents}
+                className="mt-4 p-2 bg-blue-500 text-white rounded"
+            >
+                Deploy
             </button>
         </div>
     );
