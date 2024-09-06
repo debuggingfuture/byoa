@@ -1,3 +1,5 @@
+import { NodeProps } from "@xyflow/react";
+
 export const createNodesAndEdges = (xNodes = 10, yNodes = 10, prefix = "node") => {
     const nodes = [];
     const edges = [];
@@ -33,7 +35,10 @@ export const createNodesAndEdges = (xNodes = 10, yNodes = 10, prefix = "node") =
 }
 
 
-export const create1ToMNodesWithEdges = (parentNode: any, yNodes = 10, prefix = "node") => {
+export const create1ToMNodesWithEdges = (parentNode: any, nodeProps: {
+    type: string,
+    data?: any
+}[], prefix = "node") => {
     const nodes = [parentNode];
     const edges = [];
     let nodeId = 1;
@@ -42,20 +47,22 @@ export const create1ToMNodesWithEdges = (parentNode: any, yNodes = 10, prefix = 
     const { position: positionParent, id: idParent } = parentNode
 
     console.log('positionParent', positionParent, parentNode)
-    for (let y = 0; y < yNodes; y++) {
-        const position = { x: positionParent.x + 100, y: y * 50 };
-        const data = { label: `Node ${nodeId}` };
+    for (let i = 0; i < nodeProps.length; i++) {
+        const position = { x: positionParent.x + (i + 1) * 100, y: (i + 1) * 30 };
         const node = {
             id: `${prefix}-${nodeId.toString()}`,
             style: { width: 50, fontSize: 11 },
-            data,
+            type: nodeProps?.[i].type,
+            data: {
+                ...(nodeProps?.[i].data || {})
+            },
             position,
         };
         nodes.push(node);
 
-        if (idParent && nodeId <= yNodes) {
+        if (idParent && nodeId <= nodeProps.length) {
             edges.push({
-                id: `${prefix}-${y}`,
+                id: `${prefix}-${i}`,
                 source: idParent,
                 target: `${prefix}-${nodeId.toString()}`,
             });

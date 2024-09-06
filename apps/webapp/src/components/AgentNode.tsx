@@ -10,6 +10,8 @@ import {
     Connection,
     NodeTypes,
     MarkerType,
+    Handle,
+    Position,
 } from '@xyflow/react';
 import { NodeProps } from "@xyflow/react";
 import { AIAgent, Model } from '../domain/agent';
@@ -28,31 +30,49 @@ const AgentNode: React.FC<NodeProps<AgentNodeProps>> = (props: NodeProps<AgentNo
     const supportedModels = Object.values(Model)
 
     return (
-        <div className="gradient wrapper">
-            <div className="inner">
-                <h3 className="text-lg">Agent</h3>
-                <input
-                    type="text"
-                    value={agent.name}
-                    onChange={(e) => onNameChange(agent.id, e.target.value)}
-                    className="mb-2 p-2 border rounded"
-                    placeholder="Agent Name"
-                />
-                <select
-                    value={agent.model}
-                    onChange={(e) => onModelChange(agent.id, e.target.value)}
-                    className="p-2 border rounded"
-                >
-                    {
-                        supportedModels.map(
-                            (model) => (
-                                <option key={model} value={model}>{model}</option>
+        <>
+            <Handle
+                type="target"
+                position={Position.Left}
+                style={{ background: '#555' }}
+                onConnect={(params) => console.log('handle onConnect', params)}
+                isConnectable
+            />
+            <div className="gradient wrapper">
+                <div className="inner">
+                    <h3 className="text-lg">Agent</h3>
+                    <input
+                        type="text"
+                        value={agent.name}
+                        onChange={(e) => onNameChange(agent.id, e.target.value)}
+                        className="mb-2 p-2 border rounded"
+                        placeholder="Agent Name"
+                    />
+                    <select
+                        value={agent.model}
+                        onChange={(e) => onModelChange(agent.id, e.target.value)}
+                        className="p-2 border rounded"
+                    >
+                        {
+                            supportedModels.map(
+                                (model) => (
+                                    <option key={model} value={model}>{model}</option>
+                                )
                             )
-                        )
-                    }
-                </select>
+                        }
+                    </select>
+                </div>
             </div>
-        </div>
+            <Handle
+                type="source"
+                position={Position.Right}
+                style={{ background: '#555' }}
+                onConnect={(params) => console.log('handle onConnect', params)}
+                isConnectable
+            />
+
+        </>
+
     );
 };
 

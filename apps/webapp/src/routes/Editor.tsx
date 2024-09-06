@@ -23,19 +23,12 @@ import { AIAgent, SystemPrompt, Model, TemplateType, SYSTEM_PROMPT_BY_TEMPLATE_T
 import { useConfig, useDeployContract, useWaitForTransactionReceipt, useWalletClient } from 'wagmi';
 import { BY_TEMPLATE } from '../adapters/agent-contract';
 
-// drop some NFTs
-// select from mine
-
-// dialogues
-// 1. 
-
-
-
 
 // import { eip7702Actions } from 'viem/experimental';
 import { type DeployContractParameters } from '@wagmi/core'
 import { create1ToMNodesWithEdges, createNodesAndEdges } from '../components/utils';
 import AvatarNode from '../components/AvatarNode';
+import AvatarFaceNode from '../components/AvatarFaceNode';
 
 
 enum EdgeType {
@@ -52,7 +45,8 @@ const edgeTypes = {
 enum NodeType {
     Agent = 'agent',
     SystemPrompt = 'system-prompt',
-    Avatar = 'avatar'
+    Avatar = 'avatar',
+    AvatarFace = 'avatar-face'
 }
 
 // Note: You have to create a new data object on a node to notify React Flow about data changes.
@@ -63,6 +57,7 @@ enum NodeType {
 const nodeTypes: NodeTypes = {
     [NodeType.Agent]: AgentNode,
     [NodeType.Avatar]: AvatarNode,
+    [NodeType.AvatarFace]: AvatarFaceNode,
     [NodeType.SystemPrompt]: SystemPromptNode,
 
 
@@ -217,15 +212,15 @@ const AIAgentFlowEditor: React.FC = () => {
 
 
 
-    const addNewAvatar = useCallback(() => {
+    const addNewAvatar = useCallback((agentId: string) => {
 
-
+        // TODO from agent node
         const avatarNode: Node = {
             id: 'avatar',
-            // type: NodeType.Avatar,
+            type: NodeType.Avatar,
 
             style: { width: 50, fontSize: 11 },
-            position: { x: 100, y: 100 },
+            position: { x: 500, y: 100 },
             data: {
                 agent: null,
                 label: 'Avatar',
@@ -234,12 +229,40 @@ const AIAgentFlowEditor: React.FC = () => {
             },
         };
 
-        const { nodes: nodesNew, edges: edgesNew } = create1ToMNodesWithEdges(avatarNode, 3, 'avatar-face-');
+        const avatarFaceProps = [
+            {
+                type: NodeType.AvatarFace,
+                data: {
+                    label: '🤩'
+                }
 
+            },
+            {
+                type: NodeType.AvatarFace,
+                data: {
+                    label: '😊'
+                }
+            },
+            {
+                type: NodeType.AvatarFace,
+                data: {
+                    label: '😊'
+                }
+            }
+        ]
+
+
+        const { nodes: nodesNew, edges: edgesNew } = create1ToMNodesWithEdges(avatarNode, avatarFaceProps, 'avatar-face-');
+
+        const agentEdge = {
+            id: `agent-avatar`,
+            source: agentId,
+            target: avatarNode.id,
+        }
 
         setNodes((nds) => nds.concat(...(nodesNew as any[])));
 
-        setEdges((edges: unknown[]) => edges.concat(...edgesNew) as any)
+        setEdges((edges: unknown[]) => edges.concat(...edgesNew, agentEdge) as any)
 
     }, [])
 
@@ -302,10 +325,14 @@ const AIAgentFlowEditor: React.FC = () => {
 
         setEdges((edges: unknown) => addEdge(newEdge as any, edges as any) as any)
         console.log('set edges', nodes, edges, addEdge(newEdge as any, edges as any))
+
+        return {
+            agent: newAgent
+        }
     }, [agents, handleNameChange, handleModelChange]);
 
     return (
-        <div style={{ height: '500px', width: '100%' }}>
+        <div style={{ height: '800px', width: '100%' }}>
             <ReactFlow
                 fitView
                 nodes={nodes}
@@ -326,7 +353,7 @@ const AIAgentFlowEditor: React.FC = () => {
                 Add New Agent
             </button>
             <button
-                onClick={addNewAvatar}
+                onClick={() => addNewAvatar('agent-1')}
                 className="mt-4 p-2 bg-blue-500 text-white rounded"
             >
                 Add New Aavtar
