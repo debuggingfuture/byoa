@@ -36,7 +36,7 @@ Build Your OWNED Agent
  - forge build
  - ABI and binary output at e.g. out/Contract.sol/Contract.json
 
-- Note with galadriel, compile with 0.8.25 and `--via-ir` https://book.getfoundry.sh/reference/forge/forge-build
+- Note with galadriel, at forge build/script, compile with solc 0.8.25 and `--via-ir` https://book.getfoundry.sh/reference/forge/forge-build
   - otherwise error `Compiler run failed:
 Error (1834): Copying of type struct IOracle.Content memory[] memory to storage not yet supported.`
   - and for >0.8.25 "No memoryguard was present." error as in https://github.com/ethereum/solidity/issues/14358

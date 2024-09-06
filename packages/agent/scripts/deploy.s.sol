@@ -1,7 +1,7 @@
 import { Contract } from "../src/Contract.sol";
 import "forge-std/Script.sol";
 
-import { console2 } from "forge-std/src/console2.sol";
+// import { console2 } from "forge-std/src/console2.sol";
 
 contract Deploy is Script {
 
@@ -13,12 +13,7 @@ contract Deploy is Script {
         console2.log("deployer address", deployerAddress);
         vm.startBroadcast(deployerAddress);
 
-
-        string memory basePrompt = 
-"you are an agent\n"
-"say Hi.\n";
-
-       agent  = new Contract();
+        agent  = new Contract();
 
 
     }
@@ -40,5 +35,9 @@ contract Deploy is Script {
        agent  = new Contract();
 
 
+    }
+
+    function run() public {
+        deploySimple();
     }
 }

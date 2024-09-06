@@ -12,8 +12,9 @@ import './App.css';
 import Chat from "./routes/Chat";
 import Root from "./routes/Root";
 import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { mainnet } from "wagmi/chains";
+import { mainnet, sepolia } from "wagmi/chains";
 import { WagmiProvider } from "wagmi";
+import Editor2 from "./routes/Editor2";
 import Editor from "./routes/Editor";
 
 const router = createBrowserRouter(
@@ -22,6 +23,7 @@ const router = createBrowserRouter(
       <Route path="chat" element={<Chat />} />
       <Route path="test" element={<div> hi</div>} />
       <Route path="editor" element={<Editor />} />
+      <Route path="editor2" element={<Editor2 />} />
       <Route path="*" element={<div> no match</div>} />
       {/* ... etc. */}
     </Route>
@@ -35,7 +37,7 @@ const queryClient = new QueryClient();
 const wagmiConfig = getDefaultConfig({
   appName: 'My RainbowKit App',
   projectId: 'YOUR_PROJECT_ID',
-  chains: [mainnet],
+  chains: [sepolia],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 

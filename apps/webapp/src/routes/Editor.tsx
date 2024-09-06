@@ -15,12 +15,13 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import ButtonEdge from '../components/ButtonEdge';
-
+// import { deployContract } from '@wagmi/core'
 import { on } from 'events';
 import SystemPromptNode from '../components/SystemPromptNode';
 import AgentNode from '../components/AgentNode';
 import { AIAgent, SystemPrompt, Model, TemplateType, SYSTEM_PROMPT_BY_TEMPLATE_TYPE } from '../domain/agent';
-
+import { useConfig, useDeployContract, useWaitForTransactionReceipt, useWalletClient } from 'wagmi';
+import { BY_TEMPLATE } from '../adapters/agent-contract';
 
 // drop some NFTs
 // select from mine
@@ -28,8 +29,22 @@ import { AIAgent, SystemPrompt, Model, TemplateType, SYSTEM_PROMPT_BY_TEMPLATE_T
 // dialogues
 // 1. 
 
+
+
+
+// import { eip7702Actions } from 'viem/experimental';
+import { type DeployContractParameters } from '@wagmi/core'
+import { create1ToMNodesWithEdges, createNodesAndEdges } from '../components/utils';
+import AvatarNode from '../components/AvatarNode';
+
+
+enum EdgeType {
+    Button = 'button',
+}
+
+
 const edgeTypes = {
-    button: ButtonEdge,
+    [EdgeType.Button]: ButtonEdge,
 };
 
 
@@ -47,10 +62,43 @@ enum NodeType {
 
 const nodeTypes: NodeTypes = {
     [NodeType.Agent]: AgentNode,
+    [NodeType.Avatar]: AvatarNode,
     [NodeType.SystemPrompt]: SystemPromptNode,
 
 
 };
+
+
+const DeployStatus = ({ hash, isDeploying }: { hash: `0x${string}`, isDeploying: boolean }) => {
+    const { data, isFetching, isSuccess } = useWaitForTransactionReceipt({
+        hash,
+    })
+
+    console.log('wait', data, isFetching, isSuccess);
+
+    return (
+        <div>
+            {
+                isDeploying && <div>Deploying...</div>
+            }
+            {
+                isFetching && <div>Confirming...</div>
+            }
+            {
+                isSuccess && <div>🎉Deployed <br />
+
+                    <a href={"https://sepolia.etherscan.io/tx/" + hash} target="_blank">
+                        View on Explorer {hash}
+                    </a>
+                    <br />
+                    <button className="mt-4 p-2 bg-blue-500 text-white rounded">Talk to your agent </button>
+                </div>
+
+            }
+
+        </div >
+    )
+}
 
 const AIAgentFlowEditor: React.FC = () => {
     const [agents, setAgents] = useState<AIAgent[]>([]);
@@ -58,6 +106,10 @@ const AIAgentFlowEditor: React.FC = () => {
 
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+    const [isDeploying, setIsDeploying] = useState(false);
+
+
 
     const onConnect = useCallback(
         (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -72,6 +124,22 @@ const AIAgentFlowEditor: React.FC = () => {
         );
     }, []);
 
+
+    const { data: walletClient, isLoading } = useWalletClient();
+
+    const { deployContract, isSuccess: isDeploySuccess, data: deployHash, isError: isDeployError } = useDeployContract();
+
+    const config = useConfig();
+    console.log('useWalletClient', walletClient, isLoading);
+
+    useEffect(() => {
+        if (isDeploySuccess) {
+            setIsDeploying(false);
+        }
+        // console.log('xxx', result)
+    }, [deployHash, isDeploySuccess]);
+
+    console.log('deploy', isDeploySuccess, deployHash)
     useEffect(() => {
         setNodes(
             (prevNodes: any) => {
@@ -125,9 +193,56 @@ const AIAgentFlowEditor: React.FC = () => {
     }, []);
 
 
-    const deployAgents = () => {
+    const deployAgents = async () => {
         console.log('Deploying agents', agents, systemPrompts);
+
+
+        // console.log('xxx', contract);
+
+        const deployParams = {
+            ...BY_TEMPLATE.simple,
+        } as DeployContractParameters;
+
+        console.log('deployParams', deployParams)
+
+        setIsDeploying(true);
+
+        const result = await deployContract(deployParams);
+
+        console.log('deploy results', result);
+
+
     }
+
+
+
+
+    const addNewAvatar = useCallback(() => {
+
+
+        const avatarNode: Node = {
+            id: 'avatar',
+            // type: NodeType.Avatar,
+
+            style: { width: 50, fontSize: 11 },
+            position: { x: 100, y: 100 },
+            data: {
+                agent: null,
+                label: 'Avatar',
+                onNameChange: handleNameChange,
+                onModelChange: handleModelChange,
+            },
+        };
+
+        const { nodes: nodesNew, edges: edgesNew } = create1ToMNodesWithEdges(avatarNode, 3, 'avatar-face-');
+
+
+        setNodes((nds) => nds.concat(...(nodesNew as any[])));
+
+        setEdges((edges: unknown[]) => edges.concat(...edgesNew) as any)
+
+    }, [])
+
 
     const addNewAgent = useCallback(() => {
         const newAgent: AIAgent = {
@@ -138,7 +253,7 @@ const AIAgentFlowEditor: React.FC = () => {
 
         setAgents((prevAgents) => [...prevAgents, newAgent]);
 
-        const position = { x: Math.random() * 500, y: Math.random() * 500 };
+        const position = { x: 100 + Math.random() * 10, y: 100 + Math.random() * 10 };
 
         const agentNode: Node = {
             id: newAgent.id,
@@ -172,9 +287,10 @@ const AIAgentFlowEditor: React.FC = () => {
             },
         };
 
+
         const newEdge: Edge = {
             id: `edge-${newAgent.id}-${agentSystemPrompt.id}`,
-            type: 'straight',
+            type: EdgeType.Button,
             source: agentNode.id,
             target: sysPromptNode.id,
             markerEnd: { type: MarkerType.ArrowClosed },
@@ -191,6 +307,7 @@ const AIAgentFlowEditor: React.FC = () => {
     return (
         <div style={{ height: '500px', width: '100%' }}>
             <ReactFlow
+                fitView
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
@@ -209,11 +326,36 @@ const AIAgentFlowEditor: React.FC = () => {
                 Add New Agent
             </button>
             <button
-                onClick={deployAgents}
+                onClick={addNewAvatar}
                 className="mt-4 p-2 bg-blue-500 text-white rounded"
             >
-                Deploy
+                Add New Aavtar
             </button>
+            {
+                (
+                    <button
+                        onClick={async () => {
+                            deployAgents();
+                        }}
+                        disabled={isDeploying}
+                        className="mt-4 p-2 bg-blue-500 text-white rounded"
+                    >
+                        Deploy
+                    </button>
+                )
+            }
+
+
+            {
+                isDeployError && <div>Deploy Error</div>
+            }
+
+            {
+                deployHash && (
+                    <DeployStatus hash={deployHash} isDeploying={isDeploying} />
+                )
+            }
+
         </div>
     );
 };
