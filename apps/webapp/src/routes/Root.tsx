@@ -33,9 +33,15 @@ export default function Root() {
                         <ul
                             tabIndex={0}
                             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-                            <li><a>Homepage</a></li>
-                            <li><a>Portfolio</a></li>
-                            <li><a>About</a></li>
+
+
+                            <li>
+                                <a href={`/chat`}>Chat</a>
+                            </li>
+                            <li>
+                                <a href={`/editor`}>Editor</a>
+                            </li>
+
                         </ul>
                     </div>
                 </div>
@@ -85,16 +91,7 @@ export default function Root() {
                     </div>
                 </div>
             </div>
-            <nav>
-                <ul>
-                    <li>
-                        <a href={`/chat`}>chat</a>
-                    </li>
-                    <li>
-                        <a href={`/editor`}>editor</a>
-                    </li>
-                </ul>
-            </nav>
+
             <Outlet />
         </>
     );
