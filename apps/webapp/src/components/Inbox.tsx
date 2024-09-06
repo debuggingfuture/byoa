@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { User, MessageCircle, Send } from 'lucide-react';
 import { Message, Recipient } from '../domain/inbox';
-import { useMessages } from '@xmtp/react-sdk';
+import { useConversations, useMessages, useStartConversation } from '@xmtp/react-sdk';
 
 
 
@@ -71,8 +71,6 @@ const MessageThreadContainer = ({ recipient, conversation }: { recipient: any, c
     // }, []);
 
 
-    console.log('xxx messages', messages);
-    // const messages: any[] = [];
 
     // non consistent data type
     const filteredMessages = messages.map((message: any) => {
@@ -87,7 +85,8 @@ const MessageThreadContainer = ({ recipient, conversation }: { recipient: any, c
     )
 }
 
-const Inbox: React.FC<InboxProps> = ({ recipients, conversations, sendXmtpMessage }: InboxProps) => {
+const Inbox: React.FC<InboxProps> = ({ recipients, sendXmtpMessage }: InboxProps) => {
+
 
     const [selectedRecipient, setSelectedRecipient] = useState<Recipient | null>(null);
     const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -95,22 +94,49 @@ const Inbox: React.FC<InboxProps> = ({ recipients, conversations, sendXmtpMessag
 
     const [conversationByRecipientAddress, setConversationByRecipientAddress] = useState<any>({});
 
+    const { conversations, error, isLoading } = useConversations();
+
+    // watch out for rate limit, start lazy
+    const { startConversation, isLoading: isLoadingStartConversation } = useStartConversation({
+        // conversationId: '',
+    });
+
 
     const selectedConversation = useMemo(() => {
-        console.log('updated')
         if (!selectedRecipient) {
             return;
         }
         return conversationByRecipientAddress[selectedRecipient?.address];
-    }, [selectedRecipient, conversations.length])
+    }, [selectedRecipient, conversationByRecipientAddress])
+
+    useEffect(() => {
+        // for simplicity always start before message if not exists
+        if (!selectedRecipient) {
+            return;
+        }
+        console.log('startConversation', selectedRecipient)
+        if (selectedConversation) {
+            return;
+        }
+        startConversation(selectedRecipient.address, "hi")
+            .then((result) => {
+                console.log('conversation started', result)
+                const { conversation } = result;
+                setConversationByRecipientAddress({
+                    ...conversationByRecipientAddress,
+                    [selectedRecipient.address]: conversation
+                })
+            })
+
+
+    }, [selectedRecipient])
+
 
     // useMemo
 
-
+    // still preload to avoid start
     useEffect(() => {
-        console.log('setConversationByRecipientAddress', conversations)
         conversations.forEach((conversation: any) => {
-            // const recipient = recipients.find((recipient) => recipient.address === conversation.walletAddress);
             setConversationByRecipientAddress({
                 ...conversationByRecipientAddress,
                 [conversation.peerAddress]: conversation
@@ -122,6 +148,9 @@ const Inbox: React.FC<InboxProps> = ({ recipients, conversations, sendXmtpMessag
 
     const handleSendMessage = () => {
 
+        if (!selectedConversation) {
+            return;
+        }
         const newMessageContent = newMessageContentInput.trim();
         if (newMessageContent.trim() && selectedRecipient) {
             const newMsg: Message = {
@@ -194,6 +223,7 @@ const Inbox: React.FC<InboxProps> = ({ recipients, conversations, sendXmtpMessag
                                 placeholder="Type a message..."
                             />
                             <button
+                                disabled={!selectedConversation}
                                 onClick={handleSendMessage}
                                 className="bg-blue-500 text-white rounded-full p-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >

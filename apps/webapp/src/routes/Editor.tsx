@@ -86,6 +86,10 @@ const DeployStatus = ({ hash, isDeploying }: { hash: `0x${string}`, isDeploying:
                         View on Explorer {hash}
                     </a>
                     <br />
+                    <a href={"https://sepolia.etherscan.io/address/" + data?.contractAddress} target="_blank">
+                        Contract: {data?.contractAddress}
+                    </a>
+                    <br />
                     <button className="mt-4 p-2 bg-blue-500 text-white rounded">Talk to your agent </button>
                 </div>
 

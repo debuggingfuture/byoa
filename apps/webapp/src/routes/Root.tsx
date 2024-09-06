@@ -47,7 +47,7 @@ export default function Root() {
                 </div>
                 <div className="navbar-center">
                     <a className="btn btn-ghost text-xl">
-                        <h2 className="text-xl font-bold">
+                        <h2 className="title text-2xl font-bold">
                             Build Your Owned Agent
                         </h2>
 

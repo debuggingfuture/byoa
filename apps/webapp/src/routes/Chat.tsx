@@ -87,6 +87,7 @@ const InboxContainer = () => {
 
     const { conversations } = useConversations();
 
+    const { client: xmtpClient, isLoading, error } = useClient();
     const { sendMessage } = useSendMessage();
     const onError = useCallback((err: Error) => {
         console.log('on xmtp error', err);
@@ -98,7 +99,6 @@ const InboxContainer = () => {
         onError,
     });
 
-    // console.log('isLoadingStartConversation', isLoadingStartConversation)
     // Sample data
     const recipients: Recipient[] = [
         { id: 1, name: 'Alice', avatar: 'A', address: '0x7848D06245Ec2de45Ed9BB9853E8346030B1dd4A' },
@@ -107,37 +107,22 @@ const InboxContainer = () => {
     ];
 
 
-
-
     // TODO recipients = curated + existing recipeints
     const { canMessage } = useCanMessage();
 
 
     // TODO cannot avoid xmtp deps, move inside
     useEffect(() => {
+        console.log('isLoading', xmtpClient, isLoading)
+        console.log('isLoadingStartConversation', isLoadingStartConversation)
         if (recipients.length === 0) {
             return;
         }
-        console.log('start', conversations, conversations?.[0]);
-        Promise.all(recipients.map(recipient => {
-            return startConversation(recipient.address, "hi")
-        })).then(
-            (results: any) => {
-                console.log('created');
-                const conversations2 = results.map(
-                    (result: any) => {
-                        const { cachedConversation, conversation } = result;
-
-                        return conversation;
-                    }
-                )
+        console.log('start', recipients, conversations, conversations?.[0]);
 
 
 
-            }
-
-
-        )
+        // )
 
     }, [])
 
@@ -185,17 +170,6 @@ const InboxContainer = () => {
 
     return (
         <div>
-            Conversations
-            {conversations.length}
-            {JSON.stringify(conversations)}
-            {
-                // conversations.map((conversation: any, i: any) => {
-                //     const { topic } = conversation;
-                //     return (
-                //         <MessagesList key={topic} conversation={conversation} />
-                //     )
-                // })
-            }
             <Inbox recipients={recipients} conversations={conversations}
                 sendXmtpMessage={sendXmtpMessage}
             />
@@ -278,8 +252,10 @@ const ChatContainer = () => {
 
 
     useEffect(() => {
+        if (signer) {
+            initialize({ options: XMTP_OPTIONS, signer: signer })
 
-        initialize({ options: XMTP_OPTIONS, signer: signer })
+        }
 
     }, [signer]);
 
