@@ -30,6 +30,7 @@ const SystemPromptNode: React.FC<NodeProps<SystemPromptNodeProps>> = (props: Nod
     return (
         <div className="gradient wrapper">
             <div className="inner">
+                <h3 className="text-lg">System Prompt</h3>
                 <div className="p-4 bg-white rounded shadow">
                     <textarea
                         value={systemPrompt?.prompt}

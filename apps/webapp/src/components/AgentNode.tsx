@@ -30,7 +30,7 @@ const AgentNode: React.FC<NodeProps<AgentNodeProps>> = (props: NodeProps<AgentNo
     return (
         <div className="gradient wrapper">
             <div className="inner">
-                Agent Node
+                <h3 className="text-lg">Agent</h3>
                 <input
                     type="text"
                     value={agent.name}

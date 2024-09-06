@@ -19,8 +19,14 @@ import ButtonEdge from '../components/ButtonEdge';
 import { on } from 'events';
 import SystemPromptNode from '../components/SystemPromptNode';
 import AgentNode from '../components/AgentNode';
-import { AIAgent, SystemPrompt, Model } from '../domain/agent';
+import { AIAgent, SystemPrompt, Model, TemplateType, SYSTEM_PROMPT_BY_TEMPLATE_TYPE } from '../domain/agent';
 
+
+// drop some NFTs
+// select from mine
+
+// dialogues
+// 1. 
 
 const edgeTypes = {
     button: ButtonEdge,
@@ -149,7 +155,7 @@ const AIAgentFlowEditor: React.FC = () => {
         const agentSystemPrompt: SystemPrompt = {
             id: `sp-${newAgent.id}`,
             agentId: newAgent.id,
-            prompt: 'testing',
+            prompt: SYSTEM_PROMPT_BY_TEMPLATE_TYPE[TemplateType.CustomerService],
         };
 
 
@@ -168,6 +174,7 @@ const AIAgentFlowEditor: React.FC = () => {
 
         const newEdge: Edge = {
             id: `edge-${newAgent.id}-${agentSystemPrompt.id}`,
+            type: 'straight',
             source: agentNode.id,
             target: sysPromptNode.id,
             markerEnd: { type: MarkerType.ArrowClosed },
