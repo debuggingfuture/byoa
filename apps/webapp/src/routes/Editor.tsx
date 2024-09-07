@@ -29,6 +29,7 @@ import { type DeployContractParameters } from '@wagmi/core'
 import { create1ToMNodesWithEdges, createNodesAndEdges } from '../components/utils';
 import AvatarNode from '../components/AvatarNode';
 import AvatarFaceNode from '../components/AvatarFaceNode';
+import { createShadowInboxAccount } from '../adapters/agent-inbox';
 
 
 enum EdgeType {
@@ -65,11 +66,11 @@ const nodeTypes: NodeTypes = {
 
 
 const DeployStatus = ({ hash, isDeploying }: { hash: `0x${string}`, isDeploying: boolean }) => {
-    const { data, isFetching, isSuccess } = useWaitForTransactionReceipt({
+    const { data: txnResult, isFetching, isSuccess } = useWaitForTransactionReceipt({
         hash,
     })
 
-    console.log('wait', data, isFetching, isSuccess);
+    console.log('wait', txnResult, isFetching, isSuccess);
 
     return (
         <div>
@@ -86,8 +87,8 @@ const DeployStatus = ({ hash, isDeploying }: { hash: `0x${string}`, isDeploying:
                         View on Explorer {hash}
                     </a>
                     <br />
-                    <a href={"https://sepolia.etherscan.io/address/" + data?.contractAddress} target="_blank">
-                        Contract: {data?.contractAddress}
+                    <a href={"https://sepolia.etherscan.io/address/" + txnResult?.contractAddress} target="_blank">
+                        Contract: {txnResult?.contractAddress}
                     </a>
                     <br />
                     <button className="mt-4 p-2 bg-blue-500 text-white rounded">Talk to your agent </button>
@@ -131,12 +132,39 @@ const AIAgentFlowEditor: React.FC = () => {
     const config = useConfig();
     console.log('useWalletClient', walletClient, isLoading);
 
+
+    const { data: txnResult, isFetching, isSuccess } = useWaitForTransactionReceipt({
+        hash: deployHash,
+    })
+
+
+
     useEffect(() => {
         if (isDeploySuccess) {
             setIsDeploying(false);
         }
+
+        if (txnResult) {
+
+            console.log('deploy results', txnResult);
+
+
+            // TODO lit & BE
+            const shadowAccount = createShadowInboxAccount();
+
+            const contractResults = {
+                contractAddress: txnResult.contractAddress,
+                shadowAccountAddress: shadowAccount.address,
+            }
+
+        }
+
+
+
         // console.log('xxx', result)
     }, [deployHash, isDeploySuccess]);
+
+
 
     console.log('deploy', isDeploySuccess, deployHash)
     useEffect(() => {
@@ -206,9 +234,9 @@ const AIAgentFlowEditor: React.FC = () => {
 
         setIsDeploying(true);
 
-        const result = await deployContract(deployParams);
+        await deployContract(deployParams);
 
-        console.log('deploy results', result);
+        // shadowAccount.address;
 
 
     }
@@ -336,7 +364,7 @@ const AIAgentFlowEditor: React.FC = () => {
     }, [agents, handleNameChange, handleModelChange]);
 
     return (
-        <div style={{ height: '800px', width: '100%' }}>
+        <div style={{ height: '600px', width: '100%' }}>
             <ReactFlow
                 fitView
                 nodes={nodes}

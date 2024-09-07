@@ -39,6 +39,9 @@ export default function Root() {
                                 <a href={`/chat`}>Chat</a>
                             </li>
                             <li>
+                                <a href={`/game`}>Game</a>
+                            </li>
+                            <li>
                                 <a href={`/editor`}>Editor</a>
                             </li>
 
