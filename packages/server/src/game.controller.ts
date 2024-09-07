@@ -14,6 +14,11 @@ type MovePayload = {
   }
 }
 
+
+type RegisterPayload = {
+  contractAddress:string
+}
+
 @Controller('game')
 export class GameController {
   constructor(private readonly gameService: GameService, private readonly dataService: DataService) {}
@@ -28,6 +33,12 @@ export class GameController {
   async getGameState(): Promise<any> {
 
     return this.gameService.getGameState();
+  }
+
+  @Post('/register')
+  postRegister(@Body() dto: RegisterPayload): any {
+    console.log('register', dto);
+
   }
 
 

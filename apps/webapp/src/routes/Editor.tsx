@@ -20,10 +20,10 @@ import { on } from 'events';
 import SystemPromptNode from '../components/SystemPromptNode';
 import AgentNode from '../components/AgentNode';
 import { AIAgent, SystemPrompt, Model, TemplateType, SYSTEM_PROMPT_BY_TEMPLATE_TYPE } from '../domain/agent';
-import { useConfig, useDeployContract, useWaitForTransactionReceipt, useWalletClient } from 'wagmi';
+import { useConfig, useDeployContract, usePublicClient, useWaitForTransactionReceipt, useWalletClient } from 'wagmi';
 import { BY_TEMPLATE } from '../adapters/agent-contract';
 import * as _ from 'lodash';
-
+import { waitForTransactionReceipt } from '@wagmi/core'
 // import { eip7702Actions } from 'viem/experimental';
 import { type DeployContractParameters } from '@wagmi/core'
 import { create1ToMNodesWithEdges, createNodesAndEdges } from '../components/utils';
@@ -32,9 +32,11 @@ import AvatarFaceNode from '../components/AvatarFaceNode';
 import { createShadowInboxAccount } from '../adapters/agent-inbox';
 import ChoiceNode from '../components/ChoiceNode';
 import { Emotion } from '@repo/game';
-import { Hex } from 'viem';
+import { Hex, getContractAddress } from 'viem';
+import { useAgentContext } from '../components/AgentContext';
 
-
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { createApiUrl } from './Game';
 enum EdgeType {
     Button = 'button',
 }
@@ -70,7 +72,7 @@ const nodeTypes: NodeTypes = {
 };
 
 
-const DeployStatus = ({ hash, isDeploying }: { hash: `0x${string}`, isDeploying: boolean }) => {
+const DeployStatus = ({ hash }: { hash: `0x${string}` }) => {
     const { data: txnResult, isFetching, isSuccess } = useWaitForTransactionReceipt({
         hash,
     })
@@ -79,9 +81,7 @@ const DeployStatus = ({ hash, isDeploying }: { hash: `0x${string}`, isDeploying:
 
     return (
         <div>
-            {
-                isDeploying && <div>Deploying...</div>
-            }
+
             {
                 isFetching && <div>Confirming...</div>
             }
@@ -98,8 +98,6 @@ const DeployStatus = ({ hash, isDeploying }: { hash: `0x${string}`, isDeploying:
                     <a href={"https://sepolia.etherscan.io/address/" + txnResult?.contractAddress} target="_blank">
                         Contract: {txnResult?.contractAddress}
                     </a>
-                    <br />
-                    <button className="mt-4 p-2 bg-blue-500 text-white rounded">Talk to your agent </button>
                 </div>
 
             }
@@ -110,7 +108,46 @@ const DeployStatus = ({ hash, isDeploying }: { hash: `0x${string}`, isDeploying:
 
 
 const DeployControl = ({ agentId, agent, systemPrompt }: { agentId: string, agent: any, systemPrompt: any }) => {
-    const { deployContract, isPending, isSuccess: isDeploySuccess, data: deployHash, isError: isDeployError } = useDeployContract();
+    const { deployContractAsync, isPending, isSuccess: isDeploySuccess, data: deployHash, isError: isDeployError } = useDeployContract();
+
+    const { agentByContractAddress, setAgentByContractAddress } = useAgentContext();
+
+    console.log('agentByContractAddress', agentByContractAddress);
+    const config = useConfig();
+    const fetchRegister = async ({ contractAddress }: { contractAddress: string }) => {
+        const response = await fetch(createApiUrl('game/register'));
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    };
+
+    // TODO give up tanstack here
+
+    // const { data: registerResults, isLoading, error, refetch } = useQuery({
+    //     queryKey: ['register'],
+    //     queryFn: fetchRegister,
+    //     refetchOnMount: false
+
+    // });
+
+    // const { data: txnResult, isFetching, isSuccess } = useWaitForTransactionReceipt({
+    //     hash,
+    // })
+
+    // useEffect(() => {
+    //     refetch();
+
+    //     if (deployHash) {
+    //         // TODO find contract address before wait
+    //         // getContractAddress({ from: deployHash!, opcode: 'CREATE2' });
+
+    //     }
+
+    //     // setAgentByContractAddress()
+    //     // deployHash
+    // }, [isDeploySuccess])
+
 
     const deployAgent = async (agentId: string) => {
         console.log('Deploying agents',);
@@ -122,21 +159,47 @@ const DeployControl = ({ agentId, agent, systemPrompt }: { agentId: string, agen
         console.log('deployParams', agentId, deployParams)
 
 
-        await deployContract(deployParams)
+        const hash = await deployContractAsync(deployParams);
+
+
+        const results = await waitForTransactionReceipt(config, { hash });
+        console.log('results', results);
+        const { contractAddress } = results;
+
+        await fetchRegister({
+            contractAddress
+        });
 
     }
 
     return (
         <div>
-            <button
-                onClick={async () => {
-                    deployAgent(agentId);
-                }}
-                disabled={isPending}
-                className="mt-4 p-2 ml-10 bg-blue-500 text-white text-xl rounded btn-deploy"
-            >
-                Deploy {agentId}
-            </button>
+            {
+
+                !isDeploySuccess ? (
+                    <button
+                        onClick={async () => {
+                            deployAgent(agentId);
+                        }}
+                        disabled={isPending}
+                        className="mt-4 p-2 ml-10 bg-blue-500 text-white text-xl rounded btn-deploy"
+                    >
+                        Deploy {agentId}
+                    </button>
+                ) : (
+                    <div>
+                        {<button
+                            onClick={async () => {
+                                deployAgent(agentId);
+                            }}
+
+                            className="mt-4 p-2 ml-10 bg-blue-500 text-white text-xl rounded btn-deploy"
+                        >Talk to your agent </button>}
+                    </div>
+                )
+            }
+
+
 
             <div className="p-4  text-white">
                 {
@@ -145,7 +208,7 @@ const DeployControl = ({ agentId, agent, systemPrompt }: { agentId: string, agen
 
                 {
                     deployHash && (
-                        <DeployStatus hash={deployHash} isDeploying={isDeploySuccess} />
+                        <DeployStatus hash={deployHash} />
                     )
                 }
 

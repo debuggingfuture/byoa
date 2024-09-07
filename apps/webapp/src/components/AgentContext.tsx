@@ -3,22 +3,19 @@ import { AIAgent } from '../domain/agent';
 
 // TODO contract / inbox address
 export type AgentState = {
-    agents: AIAgent[];
+    agentByContractAddress: Record<string, AIAgent>;
+    setAgentByContractAddress: any;
 };
 
 export const AgentContext = createContext<AgentState | undefined>(undefined);
 
 
 export const AgentContextProvider = ({ children }: { children: React.ReactNode }) => {
-    const value = {
-        agents: []
-    }
 
-    const [agentByContractAddress, setAgentByContractAddress] = useState({});
-
+    const [agentByContractAddress, setAgentByContractAddress] = useState<Record<string, AIAgent>>({});
 
     return (
-        <AgentContext.Provider value={value}>
+        <AgentContext.Provider value={{ setAgentByContractAddress, agentByContractAddress }}>
             {children}
         </AgentContext.Provider>
     );

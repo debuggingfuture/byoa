@@ -5,7 +5,7 @@ import fetch from 'cross-fetch';
 import GameGrid from "../components/Grid";
 // import { generateBaseGrid } from "@repo/game";
 
-const createApiUrl = (endpoint: string) => {
+export const createApiUrl = (endpoint: string) => {
     return 'http://localhost:4000/' + endpoint;
 }
 
