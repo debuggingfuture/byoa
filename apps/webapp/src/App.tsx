@@ -16,6 +16,7 @@ import { mainnet, sepolia } from "wagmi/chains";
 import { WagmiProvider } from "wagmi";
 import Editor from "./routes/Editor";
 import Game from "./routes/Game";
+import Game2 from "./routes/Game2";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -23,6 +24,7 @@ const router = createBrowserRouter(
       <Route path="chat" element={<Chat />} />
       <Route path="editor" element={<Editor />} />
       <Route path="game" element={<Game />} />
+      <Route path="game2" element={<Game2 />} />
       <Route path="*" element={<div> no match</div>} />
     </Route>
   )

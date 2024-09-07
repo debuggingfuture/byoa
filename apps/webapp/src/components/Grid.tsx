@@ -28,10 +28,10 @@ type Cell = {
 
 const DECORATION_BY_TYPE = {
 
-    [CellType.Grass]: '🌿',
+    [CellType.Grass]: '',
     [CellType.Rock]: '🪨',
     [CellType.Bone]: '🦴',
-    [CellType.Flower]: '🌼',
+    [CellType.Flower]: '',
     [CellType.Poop]: '💩',
     [CellType.Plain]: '',
 
@@ -97,6 +97,24 @@ const GameGrid = ({ baseGrid, players }: { baseGrid: Cell[], players: any[] }) =
     const [grid] = useState(baseGrid);
 
 
+    const GrassCell = ({ children }: { children?: React.ReactNode }) => (
+        <div className="w-full h-full relative overflow-hidden bg-green-200">
+            {[...Array(8)].map((_, i) => (
+                <div
+                    key={i}
+                    className="absolute bottom-0 left-1/2 w-1 bg-green-600 origin-bottom"
+                    style={{
+                        height: `${60 + Math.random() * 20}%`,
+                        left: `${45 + i * 5}%`,
+                        animation: `sway ${2 + Math.random()}s ease-in-out ${Math.random()}s infinite alternate`
+                    }}
+                />
+            ))}
+            <div className='flex w-full h-full justify-center items-end align-bottom'>
+                {children}
+            </div>
+        </div>
+    );
 
     // TODO decouple player position
     const renderGrid = () => {
@@ -117,13 +135,29 @@ const GameGrid = ({ baseGrid, players }: { baseGrid: Cell[], players: any[] }) =
 
                     const bgColor = cell.type === CellType.Plain ? 'bg-orange-100' : 'bg-green-200';
 
+                    const decorationContent = <>
+                        <span className="z-10 text-lg">{decoration}</span>
+                        <span className="z-20 text-3xl">{overlay}</span>
+                    </>
+
                     return (
                         <div
                             key={`${cell.x}-${cell.y}`}
                             className={`w-16 h-16 flex items-center justify-center border border-green-300 rounded ${bgColor}`}
                         >
-                            <span className="z-10 text-lg">{decoration}</span>
-                            <span className="z-20 text-3xl">{overlay}</span>
+                            {
+                                ![CellType.Plain, CellType.Rock].includes(cell.type) ? (
+                                    <GrassCell>
+                                        {decorationContent}
+                                    </GrassCell>
+                                ) : (
+                                    decorationContent
+                                )
+
+                            }
+
+
+
                         </div>
                     );
                 })

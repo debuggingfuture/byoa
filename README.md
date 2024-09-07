@@ -2,6 +2,60 @@
 
 Build Your OWNED Agent
 
+## Short description
+BYOA is a no-code tool to create on-chain trustless AI agents. From naughty dogs NPC in autonomous world that integrate with your game server, to customer service chatbots powered by LLM. 
+
+
+## Description
+
+
+With drag and drop, you are able to customize your agent with different emotion expressions with generative AI. 
+
+You can setup rules for AI to deterministically decide its action, such as selecting from a list of optionns or more complicated state machine. Such behaviours will be added onto the contract template to create a trustless, immutable contract when deployed. 
+
+
+
+
+You can talk to each agent which is empowered by XMTP. One example is the NPC will send you a message when he steps on a poop 💩 in the game, and you can see she becomes angry on the on-chain avatar.
+
+ 
+
+It is also possible to configure external plugins such as chainlink function to integrate an external game server, to maximize use cases of agents.
+
+
+In the the game demo, all you need to do is to fund them and they will be walking in the garden, at their wish accordingly behaviour you configured.  
+
+
+Every interaction driven by contract rules with events on-chain.
+
+on-chain AI agents provide guardrails and trustless mechanisms.
+
+
+<!-- each genearte = 6511, immediate airdrop -->
+
+
+## How it's made
+
+BYOA supports deploying agents on EVM networks, namely we provide templates deployable for
+- Sepolia (Testnet)
+ - 
+- Galadriel (L1 for Ai)
+   - access to oracle
+
+With use of chainlink functions, it is possible to external web2 APIs such as a custom game server in case of NPCs.
+
+
+- XMTP is used to community between user and agents. An inbox account is created for each agent.
+- Once XIP-44 is implemented, messages can be sent to/from contract account of Agent directly
+
+
+## Potentials
+- We could further expand customizing of agents, such as using Controlnet with stable diffusion to automatically create different expressions for an agent.  
+
+
+![alt text](image.png)
+
+
 ## dependencies
 - ethers v5 is required for lit as mentioned [here](https://developer.litprotocol.com/sdk/serverless-signing/quick-start#set-up-a-controller-wallet)
   - note issues like this https://github.com/ethers-io/ethers.js/issues/4469#issuecomment-1987163709

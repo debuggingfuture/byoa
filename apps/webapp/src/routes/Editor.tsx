@@ -45,6 +45,7 @@ const edgeTypes = {
 
 enum NodeType {
     Agent = 'agent',
+    Choice = 'choice',
     SystemPrompt = 'system-prompt',
     Avatar = 'avatar',
     AvatarFace = 'avatar-face'
@@ -109,7 +110,39 @@ const AIAgentFlowEditor: React.FC = () => {
 
     const [isDeploying, setIsDeploying] = useState(false);
 
+    const addNewChoice = useCallback((agentId: string) => {
 
+
+        const choiceNode: Node = {
+            id: 'choice',
+            type: NodeType.Choice,
+            position: {
+                x: 500,
+                y: 300
+            },
+            data: {
+                choices: [{
+                    label: 'Choice 1',
+                    value: '1'
+                },
+                {
+                    label: 'Choice 2',
+                    value: '2'
+                },
+                {
+                    label: 'Choice 3',
+                    value: '3'
+                },
+                {
+                    label: 'Choice 4',
+                    value: '4'
+                }
+                ],
+
+            },
+        };
+
+    }, []);
 
     const onConnect = useCallback(
         (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -376,7 +409,7 @@ const AIAgentFlowEditor: React.FC = () => {
                 edgeTypes={edgeTypes}
             >
                 <Background />
-                {/* TODO right */}
+                {/* TODO pull right */}
                 {/* <Controls /> */}
             </ReactFlow>
             <div className="flex justify-end p-2 gap-2">
@@ -391,6 +424,12 @@ const AIAgentFlowEditor: React.FC = () => {
                     className="mt-4 p-2 bg-blue-500 text-white rounded"
                 >
                     Add New Aavtar
+                </button>
+                <button
+                    onClick={() => addNewChoice('agent-1')}
+                    className="mt-4 p-2 bg-blue-500 text-white rounded"
+                >
+                    Add New Choice
                 </button>
                 {
                     (
