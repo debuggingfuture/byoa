@@ -40,7 +40,7 @@ const DECORATION_BY_TYPE = {
 
 const OVERLAY_BY_TYPE = {
     [OverlayType.Dog]: '🐶',
-    [OverlayType.Player1]: '👦🏽',
+    [OverlayType.Player1]: '👩🏻‍🦰',
 
 
 }

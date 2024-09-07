@@ -63,7 +63,6 @@ export default function Root() {
                                         <h2 className="pt-10 underline">Owned Agents</h2>
                                         <AIAgentList agents={[]} />
                                     </li>
-                                    test
                                 </ul>
                                 <div>
 

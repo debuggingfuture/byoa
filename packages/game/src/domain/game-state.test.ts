@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { applyMove, deriveEmotion, deriveEmotionByPlayerKey, Emotion, findNewMovePosition, Role } from './game-state';
+import { applyMove, deriveEmotionByPlayerKey, Emotion, findNewMovePosition, Role } from './game-state';
 import { CellType, generateBaseGrid } from './grid';
 
 
