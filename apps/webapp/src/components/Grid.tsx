@@ -7,6 +7,7 @@ enum CellType {
     Grass = 'grass',
     Flower = 'flower',
     Rock = 'rock',
+    Poop = 'poop',
 }
 
 enum OverlayType {
@@ -29,6 +30,7 @@ const DECORATION_BY_TYPE = {
     [CellType.Grass]: '🌿',
     [CellType.Rock]: '🪨',
     [CellType.Flower]: '🌼',
+    [CellType.Poop]: '💩',
     [CellType.Plain]: '',
 
 }
@@ -51,6 +53,8 @@ const randomizeDecoration = () => {
     if (random < 0.1) return CellType.Rock;
     if (random < 0.3) return CellType.Flower;
     if (random < 0.6) return CellType.Plain;
+    // TODO only after dog?
+    if (random < 0.65) return CellType.Poop;
     return CellType.Grass;
 }
 

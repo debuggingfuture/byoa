@@ -278,7 +278,7 @@ const AIAgentFlowEditor: React.FC = () => {
             {
                 type: NodeType.AvatarFace,
                 data: {
-                    label: '😊'
+                    label: '😢'
                 }
             }
         ]
