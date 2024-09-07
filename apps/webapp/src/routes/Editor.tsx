@@ -364,9 +364,9 @@ const AIAgentFlowEditor: React.FC = () => {
     }, [agents, handleNameChange, handleModelChange]);
 
     return (
-        <div style={{ height: '600px', width: '100%' }}>
+        <div style={{ height: '700px', width: '100%' }}>
             <ReactFlow
-                fitView
+                // fitView
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
@@ -376,44 +376,49 @@ const AIAgentFlowEditor: React.FC = () => {
                 edgeTypes={edgeTypes}
             >
                 <Background />
-                <Controls />
+                {/* TODO right */}
+                {/* <Controls /> */}
             </ReactFlow>
-            <button
-                onClick={addNewAgent}
-                className="mt-4 p-2 bg-blue-500 text-white rounded"
-            >
-                Add New Agent
-            </button>
-            <button
-                onClick={() => addNewAvatar('agent-1')}
-                className="mt-4 p-2 bg-blue-500 text-white rounded"
-            >
-                Add New Aavtar
-            </button>
-            {
-                (
-                    <button
-                        onClick={async () => {
-                            deployAgents();
-                        }}
-                        disabled={isDeploying}
-                        className="mt-4 p-2 bg-blue-500 text-white rounded"
-                    >
-                        Deploy
-                    </button>
-                )
-            }
+            <div className="flex justify-end p-2 gap-2">
+                <button
+                    onClick={addNewAgent}
+                    className="mt-4 p-2 bg-blue-500 text-white rounded"
+                >
+                    Add New Agent
+                </button>
+                <button
+                    onClick={() => addNewAvatar('agent-1')}
+                    className="mt-4 p-2 bg-blue-500 text-white rounded"
+                >
+                    Add New Aavtar
+                </button>
+                {
+                    (
+                        <button
+                            onClick={async () => {
+                                deployAgents();
+                            }}
+                            disabled={isDeploying}
+                            className="mt-4 p-2 bg-blue-500 text-white rounded"
+                        >
+                            Deploy
+                        </button>
+                    )
+                }
 
 
-            {
-                isDeployError && <div>Deploy Error</div>
-            }
+                {
+                    isDeployError && <div>Deploy Error</div>
+                }
 
-            {
-                deployHash && (
-                    <DeployStatus hash={deployHash} isDeploying={isDeploying} />
-                )
-            }
+                {
+                    deployHash && (
+                        <DeployStatus hash={deployHash} isDeploying={isDeploying} />
+                    )
+                }
+
+            </div>
+
 
         </div>
     );

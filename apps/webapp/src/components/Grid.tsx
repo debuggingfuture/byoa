@@ -120,7 +120,7 @@ const GameGrid = ({ baseGrid }: { baseGrid: Cell[] }) => {
                             className={`w-16 h-16 flex items-center justify-center border border-green-300 rounded ${bgColor}`}
                         >
                             <span className="z-10 text-lg">{decoration}</span>
-                            <span className="z-50 text-3xl">{overlay}</span>
+                            <span className="z-20 text-3xl">{overlay}</span>
                         </div>
                     );
                 })

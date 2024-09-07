@@ -3,14 +3,25 @@
 @tailwind utilities;
 
 
+.menu {
+  
+  background: linear-gradient(180deg, #ff8fb3,  #2a8af6);
+  color: white;
+  opacity: 0.95;
+}
+
+
+.menu li {
+  opacity: 1.0;
+}
+
+
 h2.title {
-  background:-webkit-linear-gradient(
-    180deg,
-    #e92a67,
-    #a853ba,
-    #2a8af6,
-    #e92a67
-  );
+
+  background: linear-gradient(90deg, #ff8fb3,  #2a8af6);
+  
+  /* text-shadow:0px 0px 20px yellow; */
+  
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
