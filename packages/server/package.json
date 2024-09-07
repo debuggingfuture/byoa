@@ -25,7 +25,9 @@
     "@nestjs/platform-express": "^10.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
-    
+    "ethers": "^5.7.2",
+    "@chainlink/functions-toolkit": "^0.3.1",
+  
     "@envio-dev/hypersync-client": "^0.6.2",
     "@repo/game": "workspace:*"
   },

@@ -16,6 +16,9 @@ Build Your OWNED Agent
 - https://dev.xmtp.chat/
 - Run at local https://github.com/ephemeraHQ/converse-app
 
+
+
+
 ## testing Lit
 - to generate a PKP public key, try https://lit-pkp-auth-demo.vercel.app/
 
@@ -40,3 +43,14 @@ Build Your OWNED Agent
   - otherwise error `Compiler run failed:
 Error (1834): Copying of type struct IOracle.Content memory[] memory to storage not yet supported.`
   - and for >0.8.25 "No memoryguard was present." error as in https://github.com/ethereum/solidity/issues/14358
+
+  
+### sample deploy script
+
+- env-cmd -f ../../.env forge script scripts/deploy.s.sol --via-ir  --broadcast  --rpc-url https://rpc.sepolia.org  --gas-price 1000 --gas-limit 60000000000000000
+
+
+## Run locally
+- Need hosted for the Chainlink function to access
+- cloudflared tunnel run <id>
+

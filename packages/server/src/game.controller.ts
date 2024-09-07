@@ -3,7 +3,7 @@ import { GameService } from './game.service';
 
 import { DataService } from './data.service';
 
-import { randomizeDecoration } from '@repo/game';
+import { deriveEmotionByPlayerKey, randomizeDecoration } from '@repo/game';
 
 
 type MovePayload = {
@@ -32,13 +32,20 @@ export class GameController {
 
 
   @Post('/move')
-  postMove(@Body() dto: MovePayload): string {
+  postMove(@Body() dto: MovePayload): any {
     console.log('compute move');
     console.log(dto);
 
+    
+    const gameState = this.gameService.applyAction(dto);
 
     // TODO calculate boundaries / rocks etc 
-    return this.gameService.applyAction(dto);
+
+    // only return status as reponse limit
+
+    const emotionByPlayerKey =  deriveEmotionByPlayerKey(gameState);
+    
+    return emotionByPlayerKey;
   }
 
 

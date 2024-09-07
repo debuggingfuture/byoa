@@ -17,6 +17,7 @@
     }
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "vitest": "^1.6.0"
   },
   "devDependencies": {

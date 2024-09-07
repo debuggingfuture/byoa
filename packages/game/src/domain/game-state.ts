@@ -1,8 +1,22 @@
-import { Cell } from "./grid"
+import * as _ from 'lodash';
+import { Cell, CellType } from "./grid"
+
+export enum Role {
+    Dog = 'dog',
+    Human = 'human'
+}
+
+
+export enum Emotion {
+    Happy = 'happy',
+    Sad = 'sad',
+    Angry = 'angry',
+    Neutral = 'neutral'
+}
 
 export type Player = {
-
     key: string,
+    role: Role,
     position: {
         x: number,
         y: number
@@ -59,12 +73,38 @@ export const applyMove = (gameState:GameState, move: any)=>{
         ...newPosition
     };
 
-
-    console.log('xxx', JSON.stringify(gameState));
-
     return {
         ...gameState,
 
     }
-
 }
+
+
+const deriveEmotionWithRole = (role:Role, cellType:CellType): Emotion=>{
+    if (role === Role.Human && cellType === CellType.Poop) {
+        return Emotion.Angry
+        
+    }
+    if (role === Role.Dog && cellType === CellType.Bone) {
+        return  Emotion.Happy
+    }
+
+    return Emotion.Neutral;
+}
+
+export const deriveEmotionByPlayerKey = (gameState:GameState)=>{
+
+    const { grid, players } = gameState;
+
+    return  _.fromPairs(players
+        .map(
+            player=>{
+                const { role, position }= player;
+    
+                const cell = grid.find(cell => cell.x === position.x && cell.y === position.y);
+    
+                return [player.key, deriveEmotionWithRole(role, cell.type)]
+            }
+        ))
+
+};
