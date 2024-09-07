@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 
 
 enum CellType {
     Plain = 'plain',
     Grass = 'grass',
+    Bone = 'bone',
     Flower = 'flower',
     Rock = 'rock',
     Poop = 'poop',
@@ -29,6 +30,7 @@ const DECORATION_BY_TYPE = {
 
     [CellType.Grass]: '🌿',
     [CellType.Rock]: '🪨',
+    [CellType.Bone]: '🦴',
     [CellType.Flower]: '🌼',
     [CellType.Poop]: '💩',
     [CellType.Plain]: '',
@@ -48,56 +50,53 @@ const OVERLAY_BY_TYPE = {
 
 
 
-const randomizeDecoration = () => {
-    const random = Math.random();
-    if (random < 0.1) return CellType.Rock;
-    if (random < 0.3) return CellType.Flower;
-    if (random < 0.6) return CellType.Plain;
-    // TODO only after dog?
-    if (random < 0.65) return CellType.Poop;
-    return CellType.Grass;
-}
+// const randomizeDecoration = () => {
+//     const random = Math.random();
+//     if (random < 0.1) return CellType.Rock;
+//     if (random < 0.3) return CellType.Flower;
+//     if (random < 0.6) return CellType.Plain;
+//     // TODO only after dog?
+//     if (random < 0.65) return CellType.Poop;
+//     if (random < 0.95) return CellType.Bone;
 
-export const generateBaseGrid = (gridSize: number): Cell[] => {
-    const grid = [];
-    for (let y = 0; y < gridSize; y++) {
-        for (let x = 0; x < gridSize; x++) {
-            const cellType = randomizeDecoration();
+//     return CellType.Grass;
+// }
 
-            grid.push({ x, y, type: cellType });
-        }
-    }
-    return grid;
-};
+// export const generateBaseGrid = (gridSize: number): Cell[] => {
+//     const grid = [];
+//     for (let y = 0; y < gridSize; y++) {
+//         for (let x = 0; x < gridSize; x++) {
+//             const cellType = randomizeDecoration();
+
+//             grid.push({ x, y, type: cellType });
+//         }
+//     }
+//     return grid;
+// };
 
 
 
 
-const GameGrid = ({ baseGrid }: { baseGrid: Cell[] }) => {
+const GameGrid = ({ baseGrid, players }: { baseGrid: Cell[], players: any[] }) => {
 
-    const [player1Position, setPlayer1Position] = useState({ x: 7, y: 7 });
-    const [player2Position, setPlayer2Position] = useState({ x: 8, y: 8 });
+    const [player1Position, setPlayer1Position] = useState({ x: 0, y: 0 });
+    const [player2Position, setPlayer2Position] = useState({ x: 0, y: 0 });
 
+
+    // TODO update datastructure
+    useEffect(() => {
+        players.forEach(player => {
+            if (player.key === 'player-1') {
+                setPlayer1Position(player.position);
+            } else if (player.key === 'player-2') {
+                setPlayer2Position(player.position);
+            }
+        })
+    }, [JSON.stringify(players)])
 
     const [grid] = useState(baseGrid);
 
 
-
-    // const movePlayer = (player, dx, dy) => {
-    //     const setPosition = player === 1 ? setPlayer1Position : setPlayer2Position;
-    //     const otherPosition = player === 1 ? player2Position : player1Position;
-
-    //     setPosition(prev => {
-    //         const newX = Math.max(0, Math.min(gridSize - 1, prev.x + dx));
-    //         const newY = Math.max(0, Math.min(gridSize - 1, prev.y + dy));
-
-    //         const newCell = grid.find(cell => cell.x === newX && cell.y === newY);
-    //         if (newCell && newCell.type !== 'rock' && !(newX === otherPosition.x && newY === otherPosition.y)) {
-    //             return { x: newX, y: newY };
-    //         }
-    //         return prev;
-    //     });
-    // };
 
     // TODO decouple player position
     const renderGrid = () => {

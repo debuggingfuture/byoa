@@ -20,6 +20,16 @@ module.exports = {
                 })
             );
 
+            // Add ts-loader for TypeScript files
+            webpackConfig.module.rules.push({
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+            });
+
+            // Ensure .ts and .tsx files are resolved
+            webpackConfig.resolve.extensions.push('.ts', '.tsx');
+
             return webpackConfig;
         },
     },
