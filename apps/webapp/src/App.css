@@ -7,6 +7,9 @@
   25% { transform: rotate(10deg); }
   75% { transform: rotate(-10deg); }
 }
+.btn-deploy{
+  background: linear-gradient(120deg, #ff8fb3,  #2a8af6);
+}
 
 .menu {
   

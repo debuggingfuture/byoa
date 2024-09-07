@@ -22,7 +22,7 @@ import AgentNode from '../components/AgentNode';
 import { AIAgent, SystemPrompt, Model, TemplateType, SYSTEM_PROMPT_BY_TEMPLATE_TYPE } from '../domain/agent';
 import { useConfig, useDeployContract, useWaitForTransactionReceipt, useWalletClient } from 'wagmi';
 import { BY_TEMPLATE } from '../adapters/agent-contract';
-
+import * as _ from 'lodash';
 
 // import { eip7702Actions } from 'viem/experimental';
 import { type DeployContractParameters } from '@wagmi/core'
@@ -32,6 +32,7 @@ import AvatarFaceNode from '../components/AvatarFaceNode';
 import { createShadowInboxAccount } from '../adapters/agent-inbox';
 import ChoiceNode from '../components/ChoiceNode';
 import { Emotion } from '@repo/game';
+import { Hex } from 'viem';
 
 
 enum EdgeType {
@@ -74,7 +75,7 @@ const DeployStatus = ({ hash, isDeploying }: { hash: `0x${string}`, isDeploying:
         hash,
     })
 
-    console.log('wait', txnResult, isFetching, isSuccess);
+    // console.log('wait', txnResult, isFetching, isSuccess);
 
     return (
         <div>
@@ -85,11 +86,14 @@ const DeployStatus = ({ hash, isDeploying }: { hash: `0x${string}`, isDeploying:
                 isFetching && <div>Confirming...</div>
             }
             {
-                isSuccess && <div>🎉Deployed <br />
-
-                    <a href={"https://sepolia.etherscan.io/tx/" + hash} target="_blank">
-                        View on Explorer {hash}
+                (isFetching || isSuccess) && (<div>
+                    <a href={"https://sepolia.etherscan.io/tx/" + hash} target="_blank" >
+                        View on Explorer <span className="underline"> {hash}</span>
                     </a>
+                </div>)
+            }
+            {
+                isSuccess && <div>🎉Deployed <br />
                     <br />
                     <a href={"https://sepolia.etherscan.io/address/" + txnResult?.contractAddress} target="_blank">
                         Contract: {txnResult?.contractAddress}
@@ -104,6 +108,53 @@ const DeployStatus = ({ hash, isDeploying }: { hash: `0x${string}`, isDeploying:
     )
 }
 
+
+const DeployControl = ({ agentId, agent, systemPrompt }: { agentId: string, agent: any, systemPrompt: any }) => {
+    const { deployContract, isPending, isSuccess: isDeploySuccess, data: deployHash, isError: isDeployError } = useDeployContract();
+
+    const deployAgent = async (agentId: string) => {
+        console.log('Deploying agents',);
+
+        const deployParams = {
+            ...BY_TEMPLATE.simple,
+        } as DeployContractParameters;
+
+        console.log('deployParams', agentId, deployParams)
+
+
+        await deployContract(deployParams)
+
+    }
+
+    return (
+        <div>
+            <button
+                onClick={async () => {
+                    deployAgent(agentId);
+                }}
+                disabled={isPending}
+                className="mt-4 p-2 ml-10 bg-blue-500 text-white text-xl rounded btn-deploy"
+            >
+                Deploy {agentId}
+            </button>
+
+            <div className="p-4  text-white">
+                {
+                    isDeployError && <div>Deploy Error</div>
+                }
+
+                {
+                    deployHash && (
+                        <DeployStatus hash={deployHash} isDeploying={isDeploySuccess} />
+                    )
+                }
+
+            </div>
+        </div>
+
+    )
+}
+
 const AIAgentFlowEditor: React.FC = () => {
     const [agents, setAgents] = useState<AIAgent[]>([]);
     const [systemPrompts, setSystemPrompts] = useState<SystemPrompt[]>([]);
@@ -112,6 +163,9 @@ const AIAgentFlowEditor: React.FC = () => {
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
     const [isDeploying, setIsDeploying] = useState(false);
+
+
+    const [deployed, setDeployed] = useState([] as Hex[]);
 
     const nextAgentId = useMemo(() => `agent-${agents.length + 1}`, [agents]);
 
@@ -188,43 +242,43 @@ const AIAgentFlowEditor: React.FC = () => {
 
     const { data: walletClient, isLoading } = useWalletClient();
 
-    const { deployContract, isSuccess: isDeploySuccess, data: deployHash, isError: isDeployError } = useDeployContract();
 
-    const config = useConfig();
-    console.log('useWalletClient', walletClient, isLoading);
+    // useEffect(() => {
+    //     if (isDeploySuccess && deployHash) {
+    //         console.log('add')
+    //         setDeployed(_.union(deployed, [deployHash]));
+    //     }
 
-
-    const { data: txnResult, isFetching, isSuccess } = useWaitForTransactionReceipt({
-        hash: deployHash,
-    })
-
-
-
-    useEffect(() => {
-        if (isDeploySuccess) {
-            setIsDeploying(false);
-        }
-
-        if (txnResult) {
-
-            console.log('deploy results', txnResult);
-
-
-            // TODO lit & BE
-            const shadowAccount = createShadowInboxAccount();
-
-            const contractResults = {
-                contractAddress: txnResult.contractAddress,
-                shadowAccountAddress: shadowAccount.address,
-            }
-
-        }
-
-    }, [deployHash, isDeploySuccess]);
+    // }), [deployHash];
 
 
 
-    console.log('deploy', isDeploySuccess, deployHash)
+
+
+    // useEffect(() => {
+    //     if (isDeploySuccess) {
+    //         setIsDeploying(false);
+    //     }
+
+    //     // if (txnResult) {
+
+    //     //     console.log('deploy results', txnResult);
+
+
+    //     //     // TODO lit & BE
+    //     //     const shadowAccount = createShadowInboxAccount();
+
+    //     //     const contractResults = {
+    //     //         contractAddress: txnResult.contractAddress,
+    //     //         shadowAccountAddress: shadowAccount.address,
+    //     //     }
+
+    //     // }
+
+    // }, [isDeploySuccess]);
+
+
+
     useEffect(() => {
         setNodes(
             (prevNodes: any) => {
@@ -278,25 +332,6 @@ const AIAgentFlowEditor: React.FC = () => {
     }, []);
 
 
-    const deployAgents = async () => {
-        console.log('Deploying agents', agents, systemPrompts);
-
-
-
-        const deployParams = {
-            ...BY_TEMPLATE.simple,
-        } as DeployContractParameters;
-
-        console.log('deployParams', deployParams)
-
-        setIsDeploying(true);
-
-        await deployContract(deployParams);
-
-        // shadowAccount.address;
-
-
-    }
 
 
 
@@ -468,30 +503,20 @@ const AIAgentFlowEditor: React.FC = () => {
                 >
                     Add Choice
                 </button>
-                {
-                    (
-                        <button
-                            onClick={async () => {
-                                deployAgents();
-                            }}
-                            disabled={isDeploying}
-                            className="mt-4 p-2 bg-blue-500 text-white rounded"
-                        >
-                            Deploy
-                        </button>
-                    )
-                }
+
+                <br />
 
 
+            </div>
+            <div className="flex">
                 {
-                    isDeployError && <div>Deploy Error</div>
+                    agents.map((agent, i) => {
+                        return (
+                            <DeployControl agentId={agent.id} agent={agents[0]} systemPrompt={systemPrompts[i]} />
+                        )
+                    })
                 }
 
-                {
-                    deployHash && (
-                        <DeployStatus hash={deployHash} isDeploying={isDeploying} />
-                    )
-                }
 
             </div>
 
