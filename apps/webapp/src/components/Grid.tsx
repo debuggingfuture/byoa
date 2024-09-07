@@ -136,7 +136,7 @@ const GameGrid = ({ baseGrid, players }: { baseGrid: Cell[], players: any[] }) =
                     const bgColor = cell.type === CellType.Plain ? 'bg-orange-100' : 'bg-green-200';
 
                     const decorationContent = <>
-                        <span className="z-10 text-lg">{decoration}</span>
+                        <span className="z-10 text-3xl">{decoration}</span>
                         <span className="z-20 text-3xl">{overlay}</span>
                     </>
 
