@@ -2,19 +2,26 @@ import { Injectable } from '@nestjs/common';
 import { HypersyncClient, presetQueryLogs } from "@envio-dev/hypersync-client";
 
 
+// https://docs.envio.dev/docs/HyperSync/hypersync-supported-networks
+
+// http://localhost:4000/game/data?contractAddress=0x9E6Fc3Ef8850f97D7FfE5562a290c071d541bbFb
+const url = 'https://sepolia.hypersync.xyz';
 @Injectable()
 export class DataService {
-  async getLogs(): Promise<any> {
+
+  async getLogs(contractAddress:string): Promise<any> {
+    console.log('get logs from contract', contractAddress);
     // Create hypersync client using the mainnet hypersync endpoint
     const client = HypersyncClient.new({
-        url: "https://eth.hypersync.xyz"
+        url
     });
 
-    // address to get logs from
-    const usdt_contract = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 
+    // ignore to block
     // query is inclusive of from_block, exclusive of to_block so this will return 49 blocks
-    let query = presetQueryLogs(usdt_contract, 17_000_000, 17_000_050);
+    let query = presetQueryLogs(contractAddress, 17_000_000);
+
+
 
     console.log("Running the query...");
 
@@ -23,7 +30,7 @@ export class DataService {
     // res.nextBlock is equal to res.archiveHeight or query.toBlock in case we specified an end block.
     const res = await client.get(query);
 
-    console.log(`Query returned ${res.data.logs.length} logs from contract ${usdt_contract}`)
+    console.log(`Query returned ${res.data.logs.length} logs from contract ${contractAddress}`)
 
 
     return res.data;

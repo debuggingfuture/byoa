@@ -364,7 +364,7 @@ const AIAgentFlowEditor: React.FC = () => {
     }, [agents, handleNameChange, handleModelChange]);
 
     return (
-        <div style={{ height: '700px', width: '100%' }}>
+        <div style={{ height: '80vh', width: '100%' }}>
             <ReactFlow
                 // fitView
                 nodes={nodes}

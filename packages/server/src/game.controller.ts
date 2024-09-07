@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { GameService } from './game.service';
 
 import { DataService } from './data.service';
@@ -44,15 +44,14 @@ export class GameController {
     // only return status as reponse limit
 
     const emotionByPlayerKey =  deriveEmotionByPlayerKey(gameState);
-    
+
     return emotionByPlayerKey;
   }
 
 
   @Get('/data')
-  async getData(): Promise<any> {
-
-    const logs = await  this.dataService.getLogs();
+  async getData(@Query() params): Promise<any> {
+    const logs = await  this.dataService.getLogs(params.contractAddress);
 
     console.log('logs', logs);
   

@@ -1,11 +1,9 @@
 import React, { createContext, useEffect, useState } from 'react';
-
+import { AIAgent } from '../domain/agent';
 
 // TODO contract / inbox address
 export type AgentState = {
-    agents: {
-
-    }[];
+    agents: AIAgent[];
 };
 
 export const AgentContext = createContext<AgentState | undefined>(undefined);

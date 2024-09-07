@@ -3,6 +3,7 @@ import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { mainnet } from "wagmi/chains";
 import { getDefaultWallets, RainbowKitProvider, ConnectButton } from '@rainbow-me/rainbowkit';
 import { AgentContextProvider } from "../components/AgentContext";
+import AIAgentList from "../components/AgenList";
 
 
 export const DrawerButton = () => {
@@ -58,7 +59,17 @@ export default function Root() {
                                     <li>
                                         <a href={`/editor`}>Editor</a>
                                     </li>
+                                    <li>
+                                        <h2 className="pt-10 underline">Owned Agents</h2>
+                                        <AIAgentList agents={[]} />
+                                    </li>
+                                    test
                                 </ul>
+                                <div>
+
+                                </div>
+
+
                             </div>
                         </div>
                         <div className="dropdown">

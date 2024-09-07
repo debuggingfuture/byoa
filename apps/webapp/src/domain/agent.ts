@@ -1,11 +1,13 @@
 
-export interface AIAgent {
+export type AIAgent = {
     id: string;
     name: string;
     model: string;
+    contractaddress?:string;
+    inboxAddress?:string;
 }
 
-export interface SystemPrompt {
+export type SystemPrompt = {
     id: string;
     agentId: string;
     prompt: string;

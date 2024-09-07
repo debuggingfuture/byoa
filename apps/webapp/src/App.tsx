@@ -21,11 +21,9 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Root />}>
       <Route path="chat" element={<Chat />} />
-      <Route path="test" element={<div> hi</div>} />
       <Route path="editor" element={<Editor />} />
       <Route path="game" element={<Game />} />
       <Route path="*" element={<div> no match</div>} />
-      {/* ... etc. */}
     </Route>
   )
 );
