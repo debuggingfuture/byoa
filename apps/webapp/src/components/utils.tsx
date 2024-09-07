@@ -48,7 +48,7 @@ export const create1ToMNodesWithEdges = (parentNode: any, nodeProps: {
 
     console.log('positionParent', positionParent, parentNode)
     for (let i = 0; i < nodeProps.length; i++) {
-        const position = { x: positionParent.x + (i + 1) * 100, y: (i + 1) * 30 };
+        const position = { x: positionParent.x + (i + 1) * 100, y: positionParent.y + (i + 1) * 30 };
         const node = {
             id: `${prefix}-${nodeId.toString()}`,
             style: { width: 50, fontSize: 11 },

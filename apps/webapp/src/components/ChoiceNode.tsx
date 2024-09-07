@@ -30,13 +30,13 @@ enum ChoiceType {
 }
 
 
-// Custom node component
 const ChoiceNode: React.FC<NodeProps<ChoiceNodeProps>> = (props: NodeProps<ChoiceNodeProps>) => {
     const { choices } = props?.data;
     const supportedModels = Object.values(Model)
     const [currentChoiceType, setCurrentChoiceType] = React.useState(ChoiceType.Randomize);
 
     const [currentChoice, setCurrentChoice] = React.useState(choices[0]);
+    const [choicePrompt, setChoicePrompt] = React.useState("Always selected one of the choices. respond with { choice: <choice> }");
 
     return (
         <>
@@ -47,13 +47,24 @@ const ChoiceNode: React.FC<NodeProps<ChoiceNodeProps>> = (props: NodeProps<Choic
                 onConnect={(params) => console.log('handle onConnect', params)}
                 isConnectable
             />
-            <div className="bg-white wrapper p-1">
+            <div className="bg-white wrapper p-1 w-full">
                 <div className="inner">
-                    <h3 className="text-sm text-black">🤖 Choices</h3>
+                    <h3 className="text-xl text-black">💭 Choices</h3>
                 </div>
+
+
+                <h3 className="text-lg text-black">When given...</h3>
+                <div className="flex gap-1">
+                    {choices.map((choice) => (
+                        <kbd className="kbd kbd-lg">{choice.label}</kbd>
+                    ))}
+                </div>
+                <h3 className="text-lg text-black">Strategy</h3>
                 <select
                     value={currentChoiceType}
-                    // onChange={(e) => onModelChange(agent.id, e.target.value)}
+                    onChange={(e) => {
+                        setCurrentChoiceType(e.target.value as ChoiceType)
+                    }}
                     className="p-2 border rounded"
                 >
                     {
@@ -64,6 +75,43 @@ const ChoiceNode: React.FC<NodeProps<ChoiceNodeProps>> = (props: NodeProps<Choic
                         )
                     }
                 </select>
+                {
+                    currentChoiceType === ChoiceType.Prompt && (
+                        <textarea
+                            value={choicePrompt}
+                            rows={6}
+                            cols={70}
+                            // onChange={(e) => {
+                            // }}
+                            className="mb-2 p-2 border rounded"
+                            placeholder="System Prompt"
+                        />
+                    )
+                }
+                {
+                    currentChoiceType === ChoiceType.Simple && (
+                        <select
+                            value={currentChoice}
+                            onChange={(e) => {
+                                setCurrentChoice(e.target.value as ChoiceType)
+                            }}
+                            className="p-2 border rounded"
+                        >
+                            {
+                                choices.map(
+                                    (choice) => (
+                                        <option key={choice.value} value={choice.value}>{choice.label}</option>
+                                    )
+                                )
+                            }
+                        </select>
+                    )
+                }
+
+
+
+
+
             </div>
             <Handle
                 type="source"

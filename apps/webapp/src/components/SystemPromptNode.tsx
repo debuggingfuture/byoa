@@ -31,11 +31,11 @@ const SystemPromptNode: React.FC<NodeProps<SystemPromptNodeProps>> = (props: Nod
         <div className="gradient wrapper">
             <div className="inner">
                 <h3 className="text-lg">System Prompt</h3>
-                <div className="p-4 bg-white rounded shadow">
+                <div className="p-2 bg-white rounded shadow">
                     <textarea
                         value={systemPrompt?.prompt}
-                        rows={4}
-                        cols={50}
+                        rows={6}
+                        cols={70}
                         onChange={(e) => onPromptInputChange(systemPrompt?.agentId, e.target.value)}
                         className="mb-2 p-2 border rounded"
                         placeholder="System Prompt"

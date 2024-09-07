@@ -7,6 +7,8 @@ import {FunctionsClient} from "@chainlink/contracts/v0.8/functions/dev/v1_0_0/Fu
 import {ConfirmedOwner} from "@chainlink/contracts/v0.8/shared/access/ConfirmedOwner.sol";
 import {FunctionsRequest} from "@chainlink/contracts/v0.8/functions/dev/v1_0_0/libraries/FunctionsRequest.sol";
 
+// TODO add idempotent key 
+
 // TODO token ERC-6511
 // contract AgentTemplate {
 

@@ -7,8 +7,13 @@
 // make HTTP request
 const countryCode = args[0];
 const url = "https://test.geist.network/game/move";
+
+
 console.log('Make a move')
 console.log(`HTTP POST Request to ${url}`);
+
+// TODO
+const idempotentKey = "player-1-demo";
 
 const payload = {
     "playerKey": "player-1",

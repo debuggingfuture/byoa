@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import {
     ReactFlow,
     Node,
@@ -30,6 +30,8 @@ import { create1ToMNodesWithEdges, createNodesAndEdges } from '../components/uti
 import AvatarNode from '../components/AvatarNode';
 import AvatarFaceNode from '../components/AvatarFaceNode';
 import { createShadowInboxAccount } from '../adapters/agent-inbox';
+import ChoiceNode from '../components/ChoiceNode';
+import { Emotion } from '@repo/game';
 
 
 enum EdgeType {
@@ -61,6 +63,7 @@ const nodeTypes: NodeTypes = {
     [NodeType.Avatar]: AvatarNode,
     [NodeType.AvatarFace]: AvatarFaceNode,
     [NodeType.SystemPrompt]: SystemPromptNode,
+    [NodeType.Choice]: ChoiceNode,
 
 
 };
@@ -110,37 +113,62 @@ const AIAgentFlowEditor: React.FC = () => {
 
     const [isDeploying, setIsDeploying] = useState(false);
 
+    const nextAgentId = useMemo(() => `agent-${agents.length + 1}`, [agents]);
+
+    // TODO move button  on the agent node
+    const lastAgentId = useMemo(() => `agent-${agents.length}`, [agents]);
+
     const addNewChoice = useCallback((agentId: string) => {
 
+        const choiceId = `choice-${agentId}`;
 
         const choiceNode: Node = {
-            id: 'choice',
+            id: choiceId,
             type: NodeType.Choice,
             position: {
                 x: 500,
-                y: 300
+                y: 600
             },
             data: {
+                // ⬆️⬇️⬅️➡️
+                // 🔼◀️
                 choices: [{
-                    label: 'Choice 1',
+                    label: '⬆️',
                     value: '1'
                 },
                 {
-                    label: 'Choice 2',
+                    label: '⬇️',
                     value: '2'
                 },
                 {
-                    label: 'Choice 3',
+                    label: '⬅️',
                     value: '3'
                 },
                 {
-                    label: 'Choice 4',
+                    label: '➡️',
                     value: '4'
                 }
                 ],
 
             },
         };
+
+
+
+        const newEdge: Edge = {
+            id: `edge-${agentId}-choice`,
+            type: EdgeType.Button,
+            source: agentId,
+            target: choiceId,
+            markerEnd: { type: MarkerType.ArrowClosed },
+        };
+
+
+        setNodes((nds) => nds.concat(...[choiceNode] as any[]));
+
+
+        setEdges((edges: unknown) => addEdge(newEdge as any, edges as any) as any)
+
 
     }, []);
 
@@ -192,9 +220,6 @@ const AIAgentFlowEditor: React.FC = () => {
 
         }
 
-
-
-        // console.log('xxx', result)
     }, [deployHash, isDeploySuccess]);
 
 
@@ -257,7 +282,6 @@ const AIAgentFlowEditor: React.FC = () => {
         console.log('Deploying agents', agents, systemPrompts);
 
 
-        // console.log('xxx', contract);
 
         const deployParams = {
             ...BY_TEMPLATE.simple,
@@ -276,16 +300,19 @@ const AIAgentFlowEditor: React.FC = () => {
 
 
 
+    const AGENT_Y_INIT = 300;
 
     const addNewAvatar = useCallback((agentId: string) => {
-
+        const avatarId = `avatar-${agentId}`;
         // TODO from agent node
+
+        console.log('addNewAvatar', agentId, avatarId, agents.length);
         const avatarNode: Node = {
-            id: 'avatar',
+            id: avatarId,
             type: NodeType.Avatar,
 
             style: { width: 50, fontSize: 11 },
-            position: { x: 500, y: 100 },
+            position: { x: -650 + agents.length * 750, y: 300 + agents.length * 100 },
             data: {
                 agent: null,
                 label: 'Avatar',
@@ -298,29 +325,36 @@ const AIAgentFlowEditor: React.FC = () => {
             {
                 type: NodeType.AvatarFace,
                 data: {
-                    label: '🤩'
+                    label: '🤩',
+                    emotion: Emotion.Happy,
+                    agentId
                 }
 
             },
             {
                 type: NodeType.AvatarFace,
                 data: {
-                    label: '😊'
+                    label: '😊',
+                    emotion: Emotion.Neutral,
+                    agentId
                 }
             },
             {
                 type: NodeType.AvatarFace,
                 data: {
-                    label: '😢'
+                    label: '😢',
+                    emotion: Emotion.Angry,
+                    agentId
                 }
             }
         ]
 
 
-        const { nodes: nodesNew, edges: edgesNew } = create1ToMNodesWithEdges(avatarNode, avatarFaceProps, 'avatar-face-');
+        const { nodes: nodesNew, edges: edgesNew } = create1ToMNodesWithEdges(avatarNode, avatarFaceProps, `${avatarId}-face-`);
 
+        console.log('agentId', agentId, avatarNode.id)
         const agentEdge = {
-            id: `agent-avatar`,
+            id: `agent-${avatarId}`,
             source: agentId,
             target: avatarNode.id,
         }
@@ -329,19 +363,19 @@ const AIAgentFlowEditor: React.FC = () => {
 
         setEdges((edges: unknown[]) => edges.concat(...edgesNew, agentEdge) as any)
 
-    }, [])
+    }, [agents])
 
 
     const addNewAgent = useCallback(() => {
         const newAgent: AIAgent = {
-            id: `agent-${agents.length + 1}`,
-            name: `Agent ${agents.length + 1}`,
+            id: nextAgentId,
+            name: nextAgentId,
             model: Model.Claude,
         };
 
         setAgents((prevAgents) => [...prevAgents, newAgent]);
 
-        const position = { x: 100 + Math.random() * 10, y: 100 + Math.random() * 10 };
+        const position = { x: 100 + 750 * agents.length + Math.random() * 10, y: 300 * agents.length + Math.random() * 10 };
 
         const agentNode: Node = {
             id: newAgent.id,
@@ -355,10 +389,13 @@ const AIAgentFlowEditor: React.FC = () => {
             },
         };
 
+
+        const templateType = nextAgentId === 'agent-1' ? TemplateType.NPCHuman : TemplateType.NPCDog;
+
         const agentSystemPrompt: SystemPrompt = {
             id: `sp-${newAgent.id}`,
             agentId: newAgent.id,
-            prompt: SYSTEM_PROMPT_BY_TEMPLATE_TYPE[TemplateType.CustomerService],
+            prompt: SYSTEM_PROMPT_BY_TEMPLATE_TYPE[templateType],
         };
 
 
@@ -377,7 +414,7 @@ const AIAgentFlowEditor: React.FC = () => {
 
 
         const newEdge: Edge = {
-            id: `edge-${newAgent.id}-${agentSystemPrompt.id}`,
+            id: `edge-${newAgent.id} -${agentSystemPrompt.id} `,
             type: EdgeType.Button,
             source: agentNode.id,
             target: sysPromptNode.id,
@@ -417,19 +454,19 @@ const AIAgentFlowEditor: React.FC = () => {
                     onClick={addNewAgent}
                     className="mt-4 p-2 bg-blue-500 text-white rounded"
                 >
-                    Add New Agent
+                    Add Agent
                 </button>
                 <button
-                    onClick={() => addNewAvatar('agent-1')}
+                    onClick={() => addNewAvatar(lastAgentId)}
                     className="mt-4 p-2 bg-blue-500 text-white rounded"
                 >
-                    Add New Aavtar
+                    Add Aavtar
                 </button>
                 <button
-                    onClick={() => addNewChoice('agent-1')}
+                    onClick={() => addNewChoice(lastAgentId)}
                     className="mt-4 p-2 bg-blue-500 text-white rounded"
                 >
-                    Add New Choice
+                    Add Choice
                 </button>
                 {
                     (
