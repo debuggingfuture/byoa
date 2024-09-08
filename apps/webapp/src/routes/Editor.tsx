@@ -29,7 +29,6 @@ import { type DeployContractParameters } from '@wagmi/core'
 import { create1ToMNodesWithEdges, createNodesAndEdges } from '../components/utils';
 import AvatarNode from '../components/AvatarNode';
 import AvatarFaceNode from '../components/AvatarFaceNode';
-import { createShadowInboxAccount } from '../adapters/agent-inbox';
 import ChoiceNode from '../components/ChoiceNode';
 import { Emotion } from '@repo/game';
 import { Hex, getContractAddress } from 'viem';
@@ -43,6 +42,8 @@ import ScriptNode from '../components/ScriptNode';
 import { createApiUrl } from '../domain/api';
 import { base, baseSepolia, optimismSepolia, sepolia } from 'viem/chains';
 import { galadrielDev } from '../domain/chain';
+
+const AGENT_Y_INIT = 300;
 
 
 enum EdgeType {
@@ -372,42 +373,6 @@ const AIAgentFlowEditor: React.FC = () => {
     const { data: walletClient, isLoading } = useWalletClient();
 
 
-    // useEffect(() => {
-    //     if (isDeploySuccess && deployHash) {
-    //         console.log('add')
-    //         setDeployed(_.union(deployed, [deployHash]));
-    //     }
-
-    // }), [deployHash];
-
-
-
-
-
-    // useEffect(() => {
-    //     if (isDeploySuccess) {
-    //         setIsDeploying(false);
-    //     }
-
-    //     // if (txnResult) {
-
-    //     //     console.log('deploy results', txnResult);
-
-
-    //     //     // TODO lit & BE
-    //     //     const shadowAccount = createShadowInboxAccount();
-
-    //     //     const contractResults = {
-    //     //         contractAddress: txnResult.contractAddress,
-    //     //         shadowAccountAddress: shadowAccount.address,
-    //     //     }
-
-    //     // }
-
-    // }, [isDeploySuccess]);
-
-
-
     useEffect(() => {
         setNodes(
             (prevNodes: any) => {
@@ -433,7 +398,6 @@ const AIAgentFlowEditor: React.FC = () => {
 
 
     const handlePromptInputChange = useCallback((agentId: string, input: string) => {
-        console.log('input', agentId, input, systemPrompts);
 
         setSystemPrompts((prevPrompts: SystemPrompt[]) => {
 
@@ -464,7 +428,6 @@ const AIAgentFlowEditor: React.FC = () => {
 
 
 
-    const AGENT_Y_INIT = 300;
 
     const addNewAvatar = useCallback((agentId: string) => {
         const avatarId = `avatar-${agentId}`;
@@ -476,7 +439,7 @@ const AIAgentFlowEditor: React.FC = () => {
             type: NodeType.Avatar,
 
             style: { width: 50, fontSize: 11 },
-            position: { x: -650 + agents.length * 750, y: 300 + agents.length * 100 },
+            position: { x: -650 + agents.length * 750, y: AGENT_Y_INIT + agents.length * 100 },
             data: {
                 agent: null,
                 label: 'Avatar',
@@ -691,10 +654,7 @@ const AIAgentFlowEditor: React.FC = () => {
                     })
                 }
 
-
             </div>
-
-
         </div >
     );
 };
