@@ -24,10 +24,10 @@ let x = 0;
 let y = 0;
 
 if (direction === 'up') {
-    y = 1;
+    y = -1;
 }
 if (direction === 'down') {
-    y = -1;
+    y = 1;
 }
 // TODO use header
 const payload = {

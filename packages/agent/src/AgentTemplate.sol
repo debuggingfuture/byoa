@@ -34,7 +34,6 @@ contract AgentTemplate is FunctionsClient, ConfirmedOwner {
 
     string public currentEmotion;
 
-
     error UnexpectedRequestID(bytes32 requestId);
 
     event Response(bytes32 indexed requestId, bytes response, bytes err);

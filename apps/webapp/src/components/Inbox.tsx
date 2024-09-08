@@ -95,7 +95,7 @@ const MessageThreadContainer = ({ recipient, conversation }: { recipient: any, c
 
     useEffect(() => {
         console.log('avatarUrlByEmotion', avatarUrlByEmotion, currentEmotion);
-        setAvatarUrl(avatarUrlByEmotion[currentEmotion as Emotion] || avatarUrlByEmotion['Neutral'])
+        setAvatarUrl(avatarUrlByEmotion[currentEmotion as Emotion] || avatarUrlByEmotion[Emotion.Neutral])
     }, [currentEmotion])
 
     // useWatchContractEvent({

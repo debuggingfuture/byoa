@@ -8,45 +8,36 @@ BYOA is a no-code tool to create on-chain trustless AI agents. From naughty dogs
 
 ## Description
 
-
-With drag and drop, you are able to customize your agent with different emotion expressions with generative AI. 
+With drag and drop, you're able to customize and deploy your AI agent with prompts, different emotion expressions with generative AI, setup up game play strategy and integrate game servers.
 
 You can setup rules for AI to deterministically decide its action, such as selecting from a list of optionns or more complicated state machine. Such behaviours will be added onto the contract template to create a trustless, immutable contract when deployed. 
 
-
-
-
-You can talk to each agent which is empowered by XMTP. One example is the NPC will send you a message when he steps on a poop 💩 in the game, and you can see she becomes angry on the on-chain avatar.
-
- 
+You can talk to each agent, powered by XMTP. One example is the NPC will send you a message when he steps on a poop 💩 in the game, and you can see she becomes angry on the on-chain avatar.
 
 It is also possible to configure external plugins such as chainlink function to integrate an external game server, to maximize use cases of agents.
 
+In the game demo, there is a poke style garden where agents will walk around, Tte game mechanics is very simple that when human step on a stone, she gets angry and when the dog step on a bone, it gets happy. 
+All you need to do is to write on contract to request for movement, which they will decide according behaviour you configured on-chain -- such as always move up. Then the on-chain decision is send back to game server to progress the game and update contract status.
 
-In the the game demo, all you need to do is to fund them and they will be walking in the garden, at their wish accordingly behaviour you configured.  
-
-
-Every interaction driven by contract rules with events on-chain.
-
-on-chain AI agents provide guardrails and trustless mechanisms.
-
-
-<!-- each genearte = 6511, immediate airdrop -->
+This tool helps us to deploy on-chain AI agents provide guardrails and trustless mechanisms.
 
 
 ## How it's made
 
 BYOA supports deploying agents on EVM networks, namely we provide templates deployable for
-- Sepolia (Testnet)
- - 
+- EVM L1/L2, e.g. Optimism Sepolia (Testnet)
 - Galadriel (L1 for Ai)
    - access to oracle
 
-With use of chainlink functions, it is possible to external web2 APIs such as a custom game server in case of NPCs.
+The no-code tool is created by react flow. We supports different contract agent teampltes and configurating avatar, actions plans etc of agent, will be creating parameters that passed to contract deployment.
 
+There is a custom game server built with nestjs which will control the game state, e.g. position of characters and the map. 
 
-- XMTP is used to community between user and agents. An inbox account is created for each agent.
-- Once XIP-44 is implemented, messages can be sent to/from contract account of Agent directly
+With use of chainlink functions, we allow on-chain NPCs to invoke our endpoint and create movement. Agent contract is registered as consumer of chainlink function. Thus after chainlink nodes invoke game API, result is written back to the smart contract. In our case, emotion of on-chain AI agent will be updated if our server find the character step on a poop. 
+
+XMTP is used to community between user and agents. With a shadow inbox account, accounts also able to send XMTP message via our server.  An inbox account is created for each agent.
+This part of the flow can be replaced via Lit action which automate the signing vault with private key not exposed.
+Once XIP-44 is implemented, messages can be sent to/from contract account of Agent directly
 
 
 ## Potentials

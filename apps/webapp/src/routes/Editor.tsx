@@ -326,7 +326,7 @@ const AIAgentFlowEditor: React.FC = () => {
             id: choiceId,
             type: NodeType.Choice,
             position: {
-                x: 500 + agents.length * 500,
+                x: 500 + agents.length * 300,
                 y: 600
             },
             data: {
@@ -663,7 +663,7 @@ const AIAgentFlowEditor: React.FC = () => {
     }, [agents, handleNameChange, handleModelChange]);
 
     return (
-        <div style={{ height: '80vh', width: '100%' }}>
+        <div style={{ height: '70vh', width: '100%' }}>
             <ReactFlow
                 // fitView
                 nodes={nodes}

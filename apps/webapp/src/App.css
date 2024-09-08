@@ -231,7 +231,7 @@ h2.title {
 .react-flow__node-agent .inner {
   background: rgba(255, 255, 255, 0.5);
   border-radius: 100%;
-  padding: 50px;
+  padding: 30px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -259,7 +259,7 @@ h2.title {
   background: rgba(255, 255, 255, 0.5);
   flex-grow: 1;
   position: relative;
-  padding: 50px;
+  padding: 30px;
   border-radius: 4px;
   height: 100%;
 }
