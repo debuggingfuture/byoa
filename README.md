@@ -100,8 +100,9 @@ Error (1834): Copying of type struct IOracle.Content memory[] memory to storage 
 
   
 ### sample deploy script
-
-- env-cmd -f ../../.env forge script scripts/deploy.s.sol --via-ir  --broadcast  --rpc-url https://rpc.sepolia.org  --gas-price 1000 --gas-limit 60000000000000000
+#### optimism sepolia
+  -  env-cmd -f ../../.env forge script scripts/deploy.s.sol --via-ir  --broadcast  --rpc-url https://sepolia.optimism.io  --gas-price 1000 --gas-limit 60000000000000000 --verify
+  - note to verify, etherscan optimism use differeent `ETHERSCAN_API_KEY`
 
 
 ## Run locally

@@ -1,9 +1,10 @@
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { mainnet } from "wagmi/chains";
 import { getDefaultWallets, RainbowKitProvider, ConnectButton } from '@rainbow-me/rainbowkit';
-import { AgentContextProvider } from "../components/AgentContext";
+import { AgentContextProvider, useAgentContext } from "../components/AgentContext";
 import AIAgentList from "../components/AgenList";
+import _ from "lodash";
 
 
 export const DrawerButton = () => {
@@ -20,6 +21,17 @@ export const DrawerButton = () => {
                 strokeWidth="2"
                 d="M4 6h16M4 12h16M4 18h7" />
         </svg>
+    )
+}
+
+
+const AIAgentListContainer = () => {
+
+    const { agentByContractAddress, setAgentByContractAddress } = useAgentContext();
+    return (
+        <div>
+            <AIAgentList agents={_.values(agentByContractAddress)} />
+        </div>
     )
 }
 
@@ -49,19 +61,19 @@ export default function Root() {
                             <div className="drawer-side z-50">
                                 <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
                                 <ul className="menu z-50 bg-base-200 text-base-content min-h-full w-80 p-4 text-2xl">
-
                                     <li>
-                                        <a href={`/chat`}>Chat</a>
+                                        <Link to="/editor">Editor</Link>
                                     </li>
                                     <li>
-                                        <a href={`/game`}>Game</a>
+                                        {/* <a href={`/chat`}>Chat</a> */}
+                                        <Link to="/chat">Chat</Link>
                                     </li>
                                     <li>
-                                        <a href={`/editor`}>Editor</a>
+                                        <Link to="/game">Game</Link>
                                     </li>
                                     <li>
                                         <h2 className="pt-10 underline">Owned Agents</h2>
-                                        <AIAgentList agents={[]} />
+                                        <AIAgentListContainer />
                                     </li>
                                 </ul>
                                 <div>
@@ -72,7 +84,7 @@ export default function Root() {
                             </div>
                         </div>
                         <div className="dropdown">
-
+                            {/* 
                             <ul
                                 tabIndex={0}
                                 className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
@@ -88,7 +100,7 @@ export default function Root() {
                                     <a href={`/editor`}>Editor</a>
                                 </li>
 
-                            </ul>
+                            </ul> */}
                         </div>
                     </div>
                     <div className="navbar-center">

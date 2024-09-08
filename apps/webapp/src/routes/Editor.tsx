@@ -19,8 +19,8 @@ import ButtonEdge from '../components/ButtonEdge';
 import { on } from 'events';
 import SystemPromptNode from '../components/SystemPromptNode';
 import AgentNode from '../components/AgentNode';
-import { AIAgent, SystemPrompt, Model, TemplateType, SYSTEM_PROMPT_BY_TEMPLATE_TYPE } from '../domain/agent';
-import { useConfig, useDeployContract, usePublicClient, useWaitForTransactionReceipt, useWalletClient } from 'wagmi';
+import { AIAgent, SystemPrompt, Model, TemplateType, SYSTEM_PROMPT_BY_TEMPLATE_TYPE, AGENT_FIXTURE_BY_KEY } from '../domain/agent';
+import { useAccount, useChainId, useConfig, useDeployContract, usePublicClient, useWaitForTransactionReceipt, useWalletClient } from 'wagmi';
 import { BY_TEMPLATE } from '../adapters/agent-contract';
 import * as _ from 'lodash';
 import { waitForTransactionReceipt } from '@wagmi/core'
@@ -36,11 +36,12 @@ import { Hex, getContractAddress } from 'viem';
 import { useAgentContext } from '../components/AgentContext';
 
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { createApiUrl } from './Game';
 
 
 import { PlusSquareIcon } from "lucide-react";
 import ScriptNode from '../components/ScriptNode';
+import { createApiUrl } from '../domain/api';
+import { base, baseSepolia, optimismSepolia, sepolia } from 'viem/chains';
 
 
 enum EdgeType {
@@ -65,7 +66,21 @@ enum NodeType {
 
 // Note: You have to create a new data object on a node to notify React Flow about data changes.
 
+const getExplorerUrl = (hash: string, type = 'tx', chainId: number = sepolia.id) => {
+    // TODO util directly from viem chains
+    let root = `https://sepolia.etherscan.io/${type}/`;
+    if (chainId === baseSepolia.id) {
+        root = `https://sepolia.basescan.org/${type}/`;
 
+    }
+    if (chainId === optimismSepolia.id) {
+        root = `${optimismSepolia.blockExplorers.default.url}/${type}/`;
+
+    }
+
+    return root + hash;
+
+}
 
 
 const nodeTypes: NodeTypes = {
@@ -80,30 +95,35 @@ const nodeTypes: NodeTypes = {
 
 
 const DeployStatus = ({ hash }: { hash: `0x${string}` }) => {
-    const { data: txnResult, isFetching, isSuccess } = useWaitForTransactionReceipt({
+    const { data: txnResult, isFetching, isPending, isFetched, isSuccess } = useWaitForTransactionReceipt({
         hash,
     })
 
-    // console.log('wait', txnResult, isFetching, isSuccess);
+    const chainId = useChainId();
 
     return (
         <div>
+            {
+                isPending && (
+                    <>
+                        <div>
+                            <a href={getExplorerUrl(hash, 'tx', chainId)} target="_blank" >
+                                View on Explorer <span className="underline"> {hash}</span>
+                            </a>
+                        </div>
+                        {
+                            isFetched && (
+                                <div>Confirming...</div>
+                            )
+                        }
+                    </>
 
-            {
-                isFetching && <div>Confirming...</div>
+                )
             }
             {
-                (isFetching || isSuccess) && (<div>
-                    <a href={"https://sepolia.etherscan.io/tx/" + hash} target="_blank" >
-                        View on Explorer <span className="underline"> {hash}</span>
-                    </a>
-                </div>)
-            }
-            {
-                isSuccess && <div>🎉Deployed <br />
-                    <br />
-                    <a href={"https://sepolia.etherscan.io/address/" + txnResult?.contractAddress} target="_blank">
-                        Contract: {txnResult?.contractAddress}
+                isSuccess && <div>🎉Deployed!<span >&nbsp;</span>
+                    <a href={getExplorerUrl(txnResult?.contractAddress!, 'address', chainId)} target="_blank">
+                        Contract:  <span className="underline">{txnResult?.contractAddress}</span>
                     </a>
                 </div>
 
@@ -123,7 +143,10 @@ const AddButton = ({ onClick, label }: { onClick: any, label: React.ReactNode })
             className="mt-4 p-2 bg-blue-500 text-white rounded"
         >
             <div className="flex row gap-2">
-                <PlusSquareIcon /> <span>{label}</span>
+                <span className="text-pink-300">
+
+                    <PlusSquareIcon />
+                </span> <span>{label}</span>
             </div>
         </button>
     )
@@ -132,13 +155,28 @@ const AddButton = ({ onClick, label }: { onClick: any, label: React.ReactNode })
 
 const DeployControl = ({ agentId, agent, systemPrompt }: { agentId: string, agent: any, systemPrompt: any }) => {
     const { deployContractAsync, isPending, isSuccess: isDeploySuccess, data: deployHash, isError: isDeployError } = useDeployContract();
+    const { address: ownerAddress } = useAccount();
 
     const { agentByContractAddress, setAgentByContractAddress } = useAgentContext();
 
     console.log('agentByContractAddress', agentByContractAddress);
     const config = useConfig();
     const fetchRegister = async ({ contractAddress }: { contractAddress: string }) => {
-        const response = await fetch(createApiUrl('game/register'));
+
+        const response = await fetch(createApiUrl('game/register'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                ...agent,
+                systemPrompt: systemPrompt?.prompt,
+                ownerAddress,
+                contractAddress
+            })
+        });
+
+        // demo only before lit action
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -146,13 +184,6 @@ const DeployControl = ({ agentId, agent, systemPrompt }: { agentId: string, agen
     };
 
     // TODO give up tanstack here
-
-    // const { data: registerResults, isLoading, error, refetch } = useQuery({
-    //     queryKey: ['register'],
-    //     queryFn: fetchRegister,
-    //     refetchOnMount: false
-
-    // });
 
     // const { data: txnResult, isFetching, isSuccess } = useWaitForTransactionReceipt({
     //     hash,
@@ -195,8 +226,20 @@ const DeployControl = ({ agentId, agent, systemPrompt }: { agentId: string, agen
         console.log('results', results);
         const { contractAddress } = results;
         if (contractAddress) {
-            await fetchRegister({
+            const registerResults = await fetchRegister({
                 contractAddress
+            });
+
+            const agentData = {
+                ...agent,
+                id: agentId,
+                contractAddress,
+                inboxAddress: registerResults?.inboxAddress,
+            }
+            console.log('add agent', agent)
+            setAgentByContractAddress({
+                ...agentByContractAddress,
+                [contractAddress]: agentData
             });
 
         }
@@ -482,6 +525,23 @@ const AIAgentFlowEditor: React.FC = () => {
         const { nodes: nodesNew, edges: edgesNew } = create1ToMNodesWithEdges(avatarNode, avatarFaceProps, `${avatarId}-face-`);
 
         console.log('agentId', agentId, avatarNode.id)
+
+        // load fixture here, TODO use dpeloyed ones
+        const avatarUrlByEmotion = AGENT_FIXTURE_BY_KEY[agentId]?.emotionImageUrl;
+
+
+        // do not create new ref
+        // setAgents((prevAgents) =>
+        //     prevAgents.map((agent) =>
+        //         agent.id === agentId ? { ...agent, avatarUrlByEmotion } : agent
+        //     )
+        // );
+        const agent = agents.find((agent) => agent.id === agentId);
+        if (agent) {
+            console.log('extend', agent)
+            agent.avatarUrlByEmotion = avatarUrlByEmotion;
+        }
+
         const agentEdge = {
             id: `agent-${avatarId}`,
             source: agentId,
@@ -623,7 +683,7 @@ const AIAgentFlowEditor: React.FC = () => {
                 {
                     agents.map((agent, i) => {
                         return (
-                            <DeployControl agentId={agent.id} agent={agents[0]} systemPrompt={systemPrompts[i]} />
+                            <DeployControl agentId={agent.id} agent={agents[i]} systemPrompt={systemPrompts[i]} />
                         )
                     })
                 }

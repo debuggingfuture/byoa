@@ -4,8 +4,9 @@ export type AIAgent = {
     id: string;
     name: string;
     model: string;
-    contractaddress?:string;
+    contractAddress?:string;
     inboxAddress?:string;
+    avatarUrlByEmotion?: Record<Emotion, string>;
 }
 
 export type SystemPrompt = {

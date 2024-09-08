@@ -18,7 +18,7 @@ describe('GameController', () => {
     it('should return game state"', async () => {
 
       const res = await gameController.getGameState();
-      // expect(res).toBe('Hello World!');
+
     });
   });
 });

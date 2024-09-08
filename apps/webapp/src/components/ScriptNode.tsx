@@ -65,7 +65,7 @@ const ScriptNode: React.FC<NodeProps<ScriptNodeProps>> = (props: NodeProps<Scrip
                                 value={ipfs}
                                 onChange={(e) => onIpfsChange(e.target.value)}
                                 // onChange={(e) => onNameChange(agent.id, e.target.value)}
-                                className="mb-4 p-2 border rounded text-white w-full"
+                                className="mb-4 p-2 border rounded text-white w-3/4"
                                 placeholder="Agent Name"
                             />
                             <br />

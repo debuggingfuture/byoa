@@ -1,8 +1,10 @@
 // No authentication. demonstrate POST with data in body
-// callgraphql api: https://github.com/trevorblades/countries
-// docs: https://trevorblades.github.io/countries/queries/continent
 
+// Note response length limit
 // Invalid Result: response >256 bytes
+
+// demo subscription
+// https://functions.chain.link/optimism-sepolia/231
 
 // make HTTP request
 const countryCode = args[0];

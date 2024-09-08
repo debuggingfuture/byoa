@@ -40,8 +40,6 @@ export class GameService {
     const { x: xP, y: yP}= this.gameState.players[0].position;
     const { x: xD, y: yD}= this.gameState.players[1].position;
     this.gameState.grid = this.gameState.grid.map(cell=> {
-      console.log('xxx', cell.x, cell.y, xP, yP, Math.abs(cell.x - xD));
-
       let distanceP =(Math.abs(cell.x - xP) + Math.abs(cell.y - yP));
       let distanceD =(Math.abs(cell.x - xD) + Math.abs(cell.y - yD));
       if(distanceP < 2 && distanceP >0 ) {

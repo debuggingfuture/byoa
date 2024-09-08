@@ -5,7 +5,8 @@ import * as fs from 'fs';
 // import AgentTemplate from '../../agent/out/AgentTemplate.sol/AgentTemplate.json';
 import { AgentTemplate } from './abi';
 import { providers } from 'ethers'
-
+import { Client as XmtpClient } from "@xmtp/xmtp-js";
+ 
 
 import * as path from 'path';
 
@@ -21,7 +22,7 @@ import * as ethers from 'ethers';
 
 import { createWalletClient, createPublicClient, http, Client, Transport, Chain, Account, hexToString, Hex} from 'viem'
 import { privateKeyToAccount } from 'viem/accounts';
-import { sepolia } from 'viem/chains';
+import { optimismSepolia, sepolia } from 'viem/chains';
 import { waitForTransactionReceipt } from 'viem/_types/actions/public/waitForTransactionReceipt';
 /**
  * 
@@ -39,6 +40,20 @@ export function clientToSigner(client: any) {
   const signer = provider.getSigner(account.address)
   return signer
 }
+
+const XMTP_OPTIONS = {
+  env: "dev" as "dev",
+  persistConversations: true,
+}
+
+
+
+export const createXmtp = async (client:any)=>{
+  const xmtp = await XmtpClient.create(client, XMTP_OPTIONS);
+
+  return xmtp;
+}
+
 
 export const subscribe = async ({
   subscriptionId,
@@ -79,8 +94,39 @@ export const subscribe = async ({
 
 @Injectable()
 export class UserService {
+
+    // chain = sepolia;
+   chain = optimismSepolia
+
     constructor(){
 
+    }
+
+    async initXmtp(agent:any){
+
+      // TODO from vault
+      const {id, name, inboxPrivateKey, ownerAddress} = agent;
+      const account = privateKeyToAccount(inboxPrivateKey);
+      let signer = createWalletClient({
+        account,
+        chain: this.chain,
+        transport: http(),
+      });
+      // auto register on network
+      const xmtp = await createXmtp(signer);
+      
+      // say hi
+      const conversation = await xmtp.conversations.newConversation(
+        ownerAddress
+        // "0x3F11b27F323b62B159D2642964fa27C46C841897",
+      );
+
+      const message = `GM! my name is ${name}. I'm your agent on XMTP network`;
+
+      conversation.send(message);
+
+
+      return xmtp;
     }
 
 
@@ -125,14 +171,14 @@ export class UserService {
 
         // Create a public client to interact with the Ethereum network
         const walletClient = createWalletClient({
-          chain: sepolia,
+          chain: this.chain,
           transport: http(rpcUrl),
         });
 
         
 
         const publicClient = createPublicClient({
-          chain: sepolia,
+          chain: this.chain,
           transport: http(rpcUrl),
         })
 

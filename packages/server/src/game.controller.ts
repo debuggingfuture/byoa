@@ -4,6 +4,8 @@ import { GameService } from './game.service';
 import { DataService } from './data.service';
 
 import { deriveEmotionByPlayerKey, randomizeDecoration } from '@repo/game';
+import { VaultService } from './vault.service';
+import { UserService } from './user.service';
 
 
 type MovePayload = {
@@ -16,12 +18,17 @@ type MovePayload = {
 
 
 type RegisterPayload = {
+  ownerAddress:string,
   contractAddress:string
 }
 
 @Controller('game')
 export class GameController {
-  constructor(private readonly gameService: GameService, private readonly dataService: DataService) {}
+  constructor(private readonly gameService: GameService, 
+    private readonly vaultService: VaultService,
+    private readonly userService: UserService,
+    private readonly dataService: DataService
+  ) {}
 
 
   /**
@@ -36,8 +43,22 @@ export class GameController {
   }
 
   @Post('/register')
-  postRegister(@Body() dto: RegisterPayload): any {
+  async postRegister(@Body() dto: RegisterPayload):Promise<any> {
     console.log('register', dto);
+    const {contractAddress, ownerAddress} = dto;
+
+    const agent = await this.vaultService.createAgent(contractAddress, ownerAddress);
+
+    console.log('agent registered');
+    console.log(agent);
+
+    const {inboxAddress} = agent;
+
+
+    this.userService.initXmtp(agent)
+    return {
+      inboxAddress
+    }
 
   }
 

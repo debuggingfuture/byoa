@@ -259,6 +259,9 @@ importers:
       '@repo/game':
         specifier: workspace:*
         version: link:../game
+      '@xmtp/xmtp-js':
+        specifier: ^12.1.0
+        version: 12.1.0(typescript@5.4.5)
       ethers:
         specifier: ^5.7.2
         version: 5.7.2

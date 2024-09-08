@@ -9,7 +9,7 @@ export type AgentState = {
 
 export const AgentContext = createContext<AgentState | undefined>(undefined);
 
-
+// TODO listen events here
 export const AgentContextProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [agentByContractAddress, setAgentByContractAddress] = useState<Record<string, AIAgent>>({});

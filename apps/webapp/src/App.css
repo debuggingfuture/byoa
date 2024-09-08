@@ -11,6 +11,13 @@
   background: linear-gradient(120deg, #ff8fb3,  #2a8af6);
 }
 
+.gradient-linear{
+  background: linear-gradient(120deg, #ff8fb3,  #2a8af6);
+  background-clip: text;
+  
+  -webkit-text-fill-color: transparent;
+}
+
 .menu {
   
   background: linear-gradient(180deg, #ff8fb3,  #2a8af6);

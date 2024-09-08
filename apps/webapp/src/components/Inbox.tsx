@@ -2,14 +2,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { User, MessageCircle, Send } from 'lucide-react';
 import { Message, Recipient } from '../domain/inbox';
 import { useConversations, useMessages, useStartConversation } from '@xmtp/react-sdk';
+import { asShortAddress } from './utils';
 
 
 
 const initialMessages: Message[] = [
-    { id: 1, senderId: 0, recipientId: 1, content: 'Hey Alice!', timestamp: new Date() },
-    { id: 2, senderId: 1, recipientId: 0, content: 'Hi there!', timestamp: new Date() },
-    { id: 3, senderId: 0, recipientId: 2, content: 'Hello Bob', timestamp: new Date() },
-    { id: 4, senderId: 2, recipientId: 0, content: 'Hey, how are you?', timestamp: new Date() },
+    { id: 1, senderId: '0', recipientId: '1', content: 'Hey Alice!', timestamp: new Date() },
+    { id: 2, senderId: '1', recipientId: '0', content: 'Hi there!', timestamp: new Date() },
+    { id: 3, senderId: '0', recipientId: '2', content: 'Hello Bob', timestamp: new Date() },
+    { id: 4, senderId: '2', recipientId: '0', content: 'Hey, how are you?', timestamp: new Date() },
 ];
 
 type InboxProps = {
@@ -20,17 +21,26 @@ type InboxProps = {
 
 
 
-const MessageThread = ({ recipient, filteredMessages }: { recipient: any, filteredMessages: any[] }) => {
+const MessageThread = ({ recipient, filteredMessages, avatarUrl }: { recipient: any, filteredMessages: any[], avatarUrl: string }) => {
+    console.log('recipient', recipient)
+
+    const isReceived = (msg: any) => msg.senderAddress === recipient.address;
 
 
     return (
         <>
+            <div>
+                <img src={avatarUrl} alt="avatar" className="w-48 h-48 mx-auto mt-4" />
+
+
+            </div>
             {/* Chat header */}
             <div className="bg-white p-4 border-b flex items-center">
-                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
-                    {recipient.avatar}
-                </div>
-                <h2 className="text-xl font-semibold">{recipient.address}</h2>
+                {/* <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
+                    {recipient.avatarUrl}
+                </div> */}
+                <h2 className="text-xl font-semibold">{recipient.name}</h2>
+                {/* <h2 className="text-xl font-semibold">{asShortAddress(recipient.address)}</h2> */}
             </div>
 
 
@@ -40,10 +50,10 @@ const MessageThread = ({ recipient, filteredMessages }: { recipient: any, filter
                 {filteredMessages.map(msg => (
                     <div
                         key={msg.id}
-                        className={`flex ${msg.senderId === 0 ? 'justify-end' : 'justify-start'}`}
+                        className={`flex ${isReceived(msg) ? 'justify-end' : 'justify-start'}`}
                     >
                         <div
-                            className={`max-w-xs px-4 py-2 rounded-lg ${msg.senderId === 0 ? 'bg-blue-500 text-white' : 'bg-gray-300'
+                            className={`max-w-xs px-4 py-2 rounded-lg ${isReceived(msg) ? 'bg-blue-500 text-white' : 'bg-gray-300'
                                 }`}
                         >
                             {msg.content}
@@ -80,8 +90,20 @@ const MessageThreadContainer = ({ recipient, conversation }: { recipient: any, c
         }
     });
 
+    console.log('filteredMessages', filteredMessages)
+
+
+    // use the contract one
+
+    const avatarUrl = recipient.avatarUrl || "https://avatars.githubusercontent.com/u/14088295?v=4";
+
     return (
-        <MessageThread recipient={recipient} filteredMessages={filteredMessages} />
+        <MessageThread recipient={recipient} filteredMessages={filteredMessages}
+
+
+            avatarUrl={avatarUrl}
+
+        />
     )
 }
 
@@ -118,7 +140,7 @@ const Inbox: React.FC<InboxProps> = ({ recipients, sendXmtpMessage }: InboxProps
         if (selectedConversation) {
             return;
         }
-        startConversation(selectedRecipient.address, "hi")
+        startConversation(selectedRecipient.address, "GM")
             .then((result) => {
                 console.log('conversation started', result)
                 const { conversation } = result;
@@ -155,7 +177,7 @@ const Inbox: React.FC<InboxProps> = ({ recipients, sendXmtpMessage }: InboxProps
         if (newMessageContent.trim() && selectedRecipient) {
             const newMsg: Message = {
                 id: messages.length + 1,
-                senderId: 0,
+                senderId: '0',
                 recipientId: selectedRecipient.id,
                 content: newMessageContent,
                 timestamp: new Date(),
@@ -171,8 +193,8 @@ const Inbox: React.FC<InboxProps> = ({ recipients, sendXmtpMessage }: InboxProps
     };
 
     const filteredMessages = messages.filter(
-        msg => (msg.senderId === selectedRecipient?.id && msg.recipientId === 0) ||
-            (msg.senderId === 0 && msg.recipientId === selectedRecipient?.id)
+        msg => (msg.senderId === selectedRecipient?.id && msg.recipientId === '0') ||
+            (msg.senderId === '0' && msg.recipientId === selectedRecipient?.id)
     );
 
 
@@ -193,10 +215,21 @@ const Inbox: React.FC<InboxProps> = ({ recipients, sendXmtpMessage }: InboxProps
                             onClick={() => setSelectedRecipient(recipient)}
                         >
                             <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
-                                {recipient.avatar}
+                                <div className="avatar">
+                                    <div className="w-12 rounded-full">
+                                        <img src={recipient.avatarUrl} />
+                                    </div>
+                                </div>
                             </div>
-                            <span>{recipient.name}</span>
-                            <span>{recipient.address}</span>
+                            <div className="flex flex-col justify-start items-start">
+                                <div>{recipient.name}</div>
+                                <div>
+
+                                    <p className="text-sm text-blue-600 mb-3">{asShortAddress(recipient.address)}...</p>
+                                </div>
+                            </div>
+
+                            {/* <p className="text-sm text-blue-600 mb-3">Inbox: &nbsp;{asShortAddress(inboxAddress)}...</p> */}
                         </li>
                     ))}
                 </ul>
@@ -204,6 +237,7 @@ const Inbox: React.FC<InboxProps> = ({ recipients, sendXmtpMessage }: InboxProps
 
             {/* Chat area */}
             <div className="flex-1 flex flex-col">
+
                 {selectedRecipient ? (
                     <>
                         {

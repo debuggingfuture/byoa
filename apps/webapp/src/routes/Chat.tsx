@@ -7,7 +7,7 @@ import { Config, useClient as useWagmiClient } from 'wagmi'
 
 import * as crypto from "crypto"
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
     useStreamMessages,
     useClient,
@@ -51,6 +51,8 @@ import { useEthersSigner } from '../adapters/signer';
 import Inbox from '../components/Inbox';
 import { Recipient } from '../domain/inbox';
 import { Receipt } from 'lucide-react';
+import { useAgentContext } from '../components/AgentContext';
+import { Emotion } from '@repo/game';
 
 // TODO Lit connect error at Next server runtime
 // consider migrate to server
@@ -87,6 +89,8 @@ const InboxContainer = () => {
 
     const { conversations } = useConversations();
 
+    const { agentByContractAddress } = useAgentContext();
+
     const { client: xmtpClient, isLoading, error } = useClient();
     const { sendMessage } = useSendMessage();
     const onError = useCallback((err: Error) => {
@@ -99,12 +103,27 @@ const InboxContainer = () => {
         onError,
     });
 
-    // Sample data
-    const recipients: Recipient[] = [
-        { id: 1, name: 'Alice', avatar: 'A', address: '0x7848D06245Ec2de45Ed9BB9853E8346030B1dd4A' },
-        { id: 2, name: 'Bob', avatar: 'B', address: '0x3F11b27F323b62B159D2642964fa27C46C841897' },
-        { id: 3, name: 'Charlie', avatar: 'C', address: '0xD99e7e1760E1a850Bc6c99e3025c5f55d5DFDfeD' },
-    ];
+    const recipients = useMemo(() => {
+
+        return Object.values(agentByContractAddress).filter(a => a.inboxAddress).map((agent) => {
+            const { name, id, contractAddress, inboxAddress, avatarUrlByEmotion } = agent;
+            return {
+                id: agent.id,
+                name,
+                address: inboxAddress!,
+                avatarUrl: avatarUrlByEmotion?.[Emotion.Neutral] as string || name || 'Agent'
+            }
+        })
+
+        // Sample data for testing
+        return [
+            { id: '1', name: 'Alice', avatar: 'A', address: '0x7848D06245Ec2de45Ed9BB9853E8346030B1dd4A' },
+            { id: '2', name: 'Bob', avatar: 'B', address: '0x3F11b27F323b62B159D2642964fa27C46C841897' },
+        ];
+
+
+    }, Object.keys(agentByContractAddress));
+
 
 
     // TODO recipients = curated + existing recipeints
@@ -221,8 +240,6 @@ const ChatContainer = () => {
         const wagmiClient = useWagmiClient();
         // // https://github.com/LIT-Protocol/Issues-and-Reports/issues/17
         // const network = await provider.getNetwork();
-
-        // console.log('network', network)
         // // invalid public or private key (argument="key", value="[REDACTED]", code=INVALID_ARGUMENT, version=signing-key/5.7.0)
         // const pkpSessionSigs = await litNodeClient.getPkpSessionSigs({
         //     pkpPublicKey: LIT_PKP_PUBLIC_KEY,
@@ -247,7 +264,6 @@ const ChatContainer = () => {
 
 
     const { client: xmtpClient, initialize, isLoading, error } = useClient();
-    console.log('client', xmtpClient, error);
 
 
 
@@ -273,24 +289,6 @@ const ChatContainer = () => {
     // // const { messages } = useMessages(conversation);
 
 
-    const sendMessage = async (message: string) => {
-
-        const peerAddress = '0x3F11b27F323b62B159D2642964fa27C46C841897';
-
-        //     console.log('loading');
-        //     return;
-        // }
-        console.log('send messages')
-        // const messages = await conversation.messages();
-        // Send a message
-        // await conversation.send("gm");
-        // // Listen for new messages in the conversation
-        // for await (const message of await conversation.streamMessages()) {
-        //     console.log(`[${message.senderAddress}]: ${message.content}`);
-        // }
-    }
-
-    // const { pkpAddress, generatedPublicKey } = await generatePrivateKey({
     //     pkpSessionSigs,
     //     network: 'evm',
     //     memo: "This is an arbitrary string you can replace with whatever you'd like",
@@ -308,10 +306,6 @@ const ChatContainer = () => {
                 xmtpClient && (<div className="badge">XMTP connected</div>)
             }
             <br />
-
-            <button onClick={() => {
-                sendMessage('hihi');
-            }}>send message</button>
 
             {
                 xmtpClient && (

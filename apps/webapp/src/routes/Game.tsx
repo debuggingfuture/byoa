@@ -3,13 +3,8 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import fetch from 'cross-fetch';
 
 import GameGrid from "../components/Grid";
-// import { generateBaseGrid } from "@repo/game";
+import { createApiUrl } from "../domain/api";
 
-export const createApiUrl = (endpoint: string) => {
-    return 'http://localhost:4000/' + endpoint;
-}
-
-// const baseGrid = generateBaseGrid(12);
 
 const fetchGameState = async () => {
     const response = await fetch(createApiUrl('game/game-state'));
@@ -43,8 +38,6 @@ const Game: React.FC = () => {
         queryKey: ['gameState'],
         queryFn: fetchGameState,
     });
-
-    console.log('data', data, isLoading);
 
 
     return (

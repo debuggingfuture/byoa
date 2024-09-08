@@ -1,15 +1,15 @@
 // Define types
 export type Recipient = {
-    id: number;
+    id: string;
     address: string;
     name: string;
-    avatar: string;
+    avatarUrl?: string;
 };
 
 export type Message = {
     id: number;
-    senderId: number;
-    recipientId: number;
+    senderId: string;
+    recipientId: string;
     content: string;
     timestamp: Date;
 };

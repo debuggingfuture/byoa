@@ -23,6 +23,22 @@ contract AgentTemplate is FunctionsClient, ConfirmedOwner {
     bytes public s_lastResponse;
     bytes public s_lastError;
 
+
+
+    string[] public messages;
+
+    
+    event MessageAdded(string message);
+
+    mapping (string => string) public avatarUrlByEmotion;    
+
+    string currentEmotion;
+
+
+
+
+
+
     error UnexpectedRequestID(bytes32 requestId);
 
     event Response(bytes32 indexed requestId, bytes response, bytes err);
@@ -30,6 +46,19 @@ contract AgentTemplate is FunctionsClient, ConfirmedOwner {
     constructor(
         address router
     ) FunctionsClient(router) ConfirmedOwner(msg.sender) {}
+
+
+    // TODO owner only
+    function addMessage(string memory message) public {
+        messages.push(message);
+        emit MessageAdded(message);
+    }
+
+
+    function updateEmoption(string memory emotion) public {
+        currentEmotion = emotion;
+    }
+
 
     /**
      * @notice Send a simple request
@@ -70,8 +99,11 @@ contract AgentTemplate is FunctionsClient, ConfirmedOwner {
             gasLimit,
             donID
         );
+
+        addMessage("hi there, I just moved");
         return s_lastRequestId;
     }
+
 
     /**
      * @notice Send a pre-encoded CBOR request

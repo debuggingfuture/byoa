@@ -35,6 +35,13 @@ export const createNodesAndEdges = (xNodes = 10, yNodes = 10, prefix = "node") =
 }
 
 
+export const asShortAddress = (address: string | undefined) => {
+    if (!address) {
+        return '';
+    }
+    return `${address.slice(0, 6)}...${address.slice(-4)}`
+}
+
 export const create1ToMNodesWithEdges = (parentNode: any, nodeProps: {
     type: string,
     data?: any
