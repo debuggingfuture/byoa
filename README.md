@@ -16,7 +16,7 @@ You can talk to each agent, powered by XMTP. One example is the NPC will send yo
 
 It is also possible to configure external plugins such as chainlink function to integrate an external game server, to maximize use cases of agents.
 
-In the game demo, there is a poke style garden where agents will walk around, Tte game mechanics is very simple that when human step on a stone, she gets angry and when the dog step on a bone, it gets happy. 
+In the game demo, there is a Pokémon-style garden where agents will walk around. Tte game mechanics is very simple that when human step on a stone, she gets angry and when the dog step on a bone, it gets happy. 
 All you need to do is to write on contract to request for movement, which they will decide according behaviour you configured on-chain -- such as always move up. Then the on-chain decision is send back to game server to progress the game and update contract status.
 
 This tool helps us to deploy on-chain AI agents with guardrails and trustless mechanisms easily.
@@ -27,21 +27,21 @@ This tool helps us to deploy on-chain AI agents with guardrails and trustless me
 BYOA supports deploying agents on mutliple EVM networks, namely we provide templates deployable for
 - EVM L1/L2, e.g. Optimism Sepolia (Testnet)
 - Galadriel (L1 for AI)
-   - access to oracle
 
-The no-code tool is created by react flow. We supports different contract agent teampltes and configurating avatar, actions plans etc of agent, will be creating parameters that passed to contract deployment.
+The no-code tool UI is created with react flow to enable simple drag & drop, connecting control nodes for agent similar to Retool or ComftyUI. We supports different contract agent teampltes and after configuring on tool the avatar, actions plans etc of agent, parameters will be passed to contract deployment and written on-chain. 
 
-There is a custom game server built with nestjs which will control the game state, e.g. position of characters and the map. 
+For the game demo, there is a custom game server built with nestjs which will control the game state, e.g. position of characters, decorations and the map. 
 
-With use of chainlink functions, we allow on-chain NPCs to invoke our endpoint and create movement. Agent contract is registered as consumer of chainlink function. Thus after chainlink nodes invoke game API, result is written back to the smart contract. In our case, emotion of on-chain AI agent will be updated if our server find the character step on a poop. 
+With use of Chainlink functions, we allow on-chain NPCs to invoke our endpoint and create movement. Agent contract is registered as consumer of chainlink function. Thus after chainlink nodes invoke game API, result is written back to the smart contract. In our case, emotion of on-chain AI agent will be updated if our server find the character step on a poop. 
 
 XMTP is used to community between user and agents. With a shadow inbox account, accounts also able to send XMTP message via our server.  An inbox account is created for each agent.
 This part of the flow can be replaced via Lit action which automate the signing vault with private key not exposed.
-Once XIP-44 is implemented, messages can be sent to/from contract account of Agent directly
+Once XIP-44 is implemented, messages can be sent to/from contract account of Agent directly.
 
 
-## Potentials
+### Future Potentials
 - We could further expand customizing of agents, such as using Controlnet with stable diffusion to automatically create different expressions for an agent.  
+- Agent can be made fully autonomous with programmable keys so any server can trigger trustless execution of contracts 
 
 
 ![alt text](image.png)
