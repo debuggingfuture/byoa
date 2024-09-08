@@ -19,14 +19,14 @@ It is also possible to configure external plugins such as chainlink function to 
 In the game demo, there is a poke style garden where agents will walk around, Tte game mechanics is very simple that when human step on a stone, she gets angry and when the dog step on a bone, it gets happy. 
 All you need to do is to write on contract to request for movement, which they will decide according behaviour you configured on-chain -- such as always move up. Then the on-chain decision is send back to game server to progress the game and update contract status.
 
-This tool helps us to deploy on-chain AI agents provide guardrails and trustless mechanisms.
+This tool helps us to deploy on-chain AI agents with guardrails and trustless mechanisms easily.
 
 
 ## How it's made
 
-BYOA supports deploying agents on EVM networks, namely we provide templates deployable for
+BYOA supports deploying agents on mutliple EVM networks, namely we provide templates deployable for
 - EVM L1/L2, e.g. Optimism Sepolia (Testnet)
-- Galadriel (L1 for Ai)
+- Galadriel (L1 for AI)
    - access to oracle
 
 The no-code tool is created by react flow. We supports different contract agent teampltes and configurating avatar, actions plans etc of agent, will be creating parameters that passed to contract deployment.
@@ -91,12 +91,16 @@ Error (1834): Copying of type struct IOracle.Content memory[] memory to storage 
 
   
 ### sample deploy script
+  - cd packages/agent
 #### optimism sepolia
   -  env-cmd -f ../../.env forge script scripts/deploy.s.sol --via-ir  --broadcast  --rpc-url https://sepolia.optimism.io  --gas-price 1000 --gas-limit 60000000000000000 --verify
   - note to verify, etherscan optimism use differeent `ETHERSCAN_API_KEY`
-
+#### galadriel
+  - env-cmd -f ../../.env forge script --legacy scripts/deploy.s.sol --via-ir --rpc-url https://devnet.galadriel.com --broadcast  --gas-price 1000000000 --gas-limit 600000000000
 
 ## Run locally
 - Need hosted for the Chainlink function to access
+- (source.js cannot point to localhost)
 - cloudflared tunnel run <id>
+
 

@@ -5,15 +5,39 @@ pragma solidity ^0.8.9;
 // import "hardhat/console.sol";
 import "./IOracle.sol";
 
-// @title OpenAiChatGpt
 // @notice This contract interacts with teeML oracle to handle chat interactions using the OpenAI model.
-contract OpenAiChatGpt {
+contract AgentLLMTemplate {
 
     struct ChatRun {
         address owner;
         IOracle.Message[] messages;
         uint messagesCount;
     }
+
+    string[] public messages;
+    string public choice;
+    
+    event MessageAdded(string message);
+    event EmotionUpdated(string emotion);
+
+    mapping (string => string) public avatarUrlByEmotion;    
+
+    string public currentEmotion;
+
+    string systemPrompt;
+    
+
+    function addMessage(string memory message) public {
+        messages.push(message);
+        emit MessageAdded(message);
+    }
+
+
+    function updateEmotion(string memory emotion) public {
+        currentEmotion = emotion;
+        emit EmotionUpdated(emotion);
+    }
+
 
     // @notice Mapping from chat ID to ChatRun
     mapping(uint => ChatRun) public chatRuns;
@@ -35,8 +59,10 @@ contract OpenAiChatGpt {
     IOracle.OpenAiRequest private config;
 
     // @param initialOracleAddress Initial address of the oracle contract
-    constructor(address initialOracleAddress) {
+    constructor(address initialOracleAddress, string memory _choice, string memory _systemPrompt) {
         owner = msg.sender;
+        choice = _choice;
+        systemPrompt = _systemPrompt;
         oracleAddress = initialOracleAddress;
         chatRunsCount = 0;
 
@@ -83,9 +109,13 @@ contract OpenAiChatGpt {
         ChatRun storage run = chatRuns[chatRunsCount];
 
         run.owner = msg.sender;
+
+        IOracle.Message memory systemMessage = createTextMessage("user", systemPrompt);
         IOracle.Message memory newMessage = createTextMessage("user", message);
+
+        run.messages.push(systemMessage);
         run.messages.push(newMessage);
-        run.messagesCount = 1;
+        run.messagesCount = 2;
 
         uint currentId = chatRunsCount;
         chatRunsCount = chatRunsCount + 1;
