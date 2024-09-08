@@ -28,7 +28,7 @@ BYOA supports and deploying agents on mutliple EVM networks, namely we provide t
 - EVM L1/L2, e.g. Optimism Sepolia (Testnet)
 - Galadriel (L1 for AI)
 
-The no-code tool UI is created with react flow to enable simple drag & drop, connecting control nodes for agent similar to Retool or ComftyUI. We supports different contract agent teampltes and after configuring on tool the avatar, actions plans etc of agent, parameters will be passed to contract deployment and written on-chain. 
+The no-code tool UI is created with react flow to enable simple drag & drop, connecting control nodes for agent similar to Retool or ComftyUI. We supports different contract agent teampltes and after configuring on tool the avatar, actions plans etc of agent, parameters will be passed to contract deployment and written on-chain. To create assets for various facial expression for different emotion, stable diffusion and Lora is used to pre-generate.  
 
 For the game demo, there is a custom game server built with nestjs which will control the game state, e.g. position of characters, decorations and the map. 
 
@@ -42,7 +42,7 @@ To make the agent more autonomous, Lit action can be used so once user granted r
 
 
 ### Future Potentials
-- We could further expand customizing of agents, such as using Controlnet with stable diffusion to automatically create different expressions for an agent.  
+- We could further expand customizing of agents, such as integrating Controlnet with stable diffusion pipelines to automatically create different expressions for an agent.  
 
 
 

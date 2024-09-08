@@ -4,6 +4,7 @@ export type AIAgent = {
     id: string;
     name: string;
     model: string;
+    choice?: string;
     contractAddress?:string;
     inboxAddress?:string;
     avatarUrlByEmotion?: Record<Emotion, string>;

@@ -98,52 +98,56 @@ export class GameController {
     const {playerKey, position, idempotentKey} = dto;
 
     const isExecuted = this.idempotentKeys.has(idempotentKey);
-    console.log('idempotentKey', idempotentKey);
-    if(isExecuted){
-      console.log('isExecuted, skipping');
-      return;
-    }
-    
+
     this.idempotentKeys.add(idempotentKey);
-    const gameState = this.gameService.applyAction(dto);
 
-    // TODO calculate boundaries / rocks etc 
-
-    // only return status as reponse limit
-
-    const emotionByPlayerKey =  deriveEmotionByPlayerKey(gameState);
-
-    console.log('playerKey', playerKey)
-    const player = this.playerByKey.get(playerKey);
-    // contractAddress
-    const agent = this.vaultService.getAgent(player?.contractAddress)
+    console.log('idempotentKey', idempotentKey);
 
 
-    // agent send message
-
-    
-    const {ownerAddress, inboxAddress} = agent;
 
 
-    const xmtpClient = await this.userService.createXmtpClient(agent)
+    if(isExecuted){
+      console.log('isExecuted, skipping update but return results');
+      const gameState = this.gameService.getGameState();
+      const emotionByPlayerKey =  deriveEmotionByPlayerKey(gameState);
+      return {result: emotionByPlayerKey[playerKey]};
+    } else {
+      const gameState = this.gameService.applyAction(dto);
 
-    const conversation = await xmtpClient.conversations.newConversation(
-      ownerAddress
-    );
+      // TODO calculate boundaries / rocks etc 
+  
+      // only return status as reponse limit
+  
+      const emotionByPlayerKey =  deriveEmotionByPlayerKey(gameState);
+  
+      console.log('playerKey', playerKey)
+      const player = this.playerByKey.get(playerKey);
+      // contractAddress
+      const agent = this.vaultService.getAgent(player?.contractAddress)
+  
+  
+      const {ownerAddress, inboxAddress} = agent;
 
+      const newEmotion = emotionByPlayerKey[playerKey];
 
-    const newEmotion = emotionByPlayerKey[playerKey];
+      console.log('newEmotion', newEmotion);
+  
+      // agent send message
+      const xmtpClient = await this.userService.createXmtpClient(agent)
 
-    console.log('newEmotion', newEmotion);
-
-
-    if(newEmotion === Emotion.Angry){
-      const message = 'I DONT LIKE DOOOOOGG!!!!!!! 💢💢💢';
-      await conversation.send(message);
-
+      const conversation = await xmtpClient.conversations.newConversation(
+        ownerAddress
+      );
+  
+      if(newEmotion === Emotion.Angry){
+        const message = 'I DONT LIKE DOOOOOGG!!!!!!! 💢💢💢';
+        await conversation.send(message);
+  
+      }
+      return {result: emotionByPlayerKey[playerKey]};
     }
 
-    return emotionByPlayerKey[playerKey];
+
   }
 
 

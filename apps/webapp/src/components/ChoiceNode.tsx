@@ -18,7 +18,7 @@ import { AIAgent, Model } from '../domain/agent';
 import React from 'react';
 
 type ChoiceNodeProps = Node<{
-
+    onChoiceChange: (choice: string) => void;
     choices: any[];
 }>
 
@@ -31,8 +31,7 @@ enum ChoiceType {
 
 
 const ChoiceNode: React.FC<NodeProps<ChoiceNodeProps>> = (props: NodeProps<ChoiceNodeProps>) => {
-    const { choices } = props?.data;
-    const supportedModels = Object.values(Model)
+    const { choices, onChoiceChange } = props?.data;
     const [currentChoiceType, setCurrentChoiceType] = React.useState(ChoiceType.Randomize);
 
     const [currentChoice, setCurrentChoice] = React.useState(choices[0]);
@@ -93,7 +92,8 @@ const ChoiceNode: React.FC<NodeProps<ChoiceNodeProps>> = (props: NodeProps<Choic
                         <select
                             value={currentChoice}
                             onChange={(e) => {
-                                setCurrentChoice(e.target.value as ChoiceType)
+                                setCurrentChoice(e.target.value as ChoiceType);
+                                onChoiceChange(e.target.value as ChoiceType);
                             }}
                             className="p-2 border rounded"
                         >

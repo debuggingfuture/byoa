@@ -17,9 +17,6 @@ console.log(`HTTP POST Request to ${url}`);
 // TODO
 const idempotentKey = "player-1-demo";
 
-
-// TODO other directions
-//  This payload could come from contract instead
 let x = 0;
 let y = 0;
 
@@ -29,7 +26,15 @@ if (direction === 'up') {
 if (direction === 'down') {
     y = 1;
 }
-// TODO use header
+
+if (direction === 'left') {
+    x = -1;
+}
+
+if (direction === 'right') {
+    x = 1;
+}
+// TODO use header for idempotent key
 const payload = {
     idempotentKey,
     "playerKey": "player-1",
@@ -57,10 +62,10 @@ if (gameResponse.error) {
             ? `${gameResponse.response.status},${gameResponse.response.statusText}`
             : ""
     );
-    throw Error("Request failed");
+    throw Error("Request Failed:" + gameResponse.response.statusText);
 }
 
-const gameResponseData = gameResponse["data"];
+const gameResponseData = gameResponse["data"]["result"];
 
 if (!gameResponseData) {
     throw Error(`Make sure api is working`);
@@ -68,13 +73,5 @@ if (!gameResponseData) {
 
 console.log("response", gameResponseData);
 
-// result is in JSON object
-// const result = {
-//     ...gameResponseData
-// };
 
 return Functions.encodeString(gameResponseData)
-
-// // Use JSON.stringify() to convert from JSON object to JSON string
-// // Finally, use the helper Functions.encodeString() to encode from string to bytes
-// return Functions.encodeString(JSON.stringify(result));

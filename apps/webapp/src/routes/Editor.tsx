@@ -198,10 +198,9 @@ const DeployControl = ({ agentId, agent, systemPrompt }: { agentId: string, agen
         const deployParams = {
             abi,
             bytecode,
-            // TODO fix choice params
             args: argsFactory({
                 prompt: systemPrompt.prompt,
-                choice: "up"
+                choice: agent.choice || "up"
             }),
 
         } as DeployContractParameters;
@@ -292,12 +291,21 @@ const AIAgentFlowEditor: React.FC = () => {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-    const [isDeploying, setIsDeploying] = useState(false);
-
-
-    const [deployed, setDeployed] = useState([] as Hex[]);
 
     const nextAgentId = useMemo(() => `agent-${agents.length + 1}`, [agents]);
+
+
+
+    const handleChoiceChange = useCallback((agentId: string, choice: string) => {
+
+        const agent = agents.find((agent) => agent.id === agentId);
+        if (agent) {
+            console.log('update choice', choice)
+            agent.choice = choice;
+        }
+
+    }, [agents]);
+
 
     // TODO move button  on the agent node
     const lastAgentId = useMemo(() => `agent-${agents.length}`, [agents]);
@@ -314,8 +322,8 @@ const AIAgentFlowEditor: React.FC = () => {
                 y: 600
             },
             data: {
+                onChoiceChange: handleChoiceChange,
                 // ⬆️⬇️⬅️➡️
-                // 🔼◀️
                 choices: [{
                     label: '⬆️',
                     value: '1'
@@ -337,6 +345,10 @@ const AIAgentFlowEditor: React.FC = () => {
             },
         };
 
+
+        const onChange = () => {
+
+        }
 
 
         const newEdge: Edge = {
@@ -360,6 +372,9 @@ const AIAgentFlowEditor: React.FC = () => {
         (params: Connection) => setEdges((eds) => addEdge(params, eds)),
         [setEdges]
     );
+
+
+
 
     const handleNameChange = useCallback((id: string, name: string) => {
         setAgents((prevAgents) =>
