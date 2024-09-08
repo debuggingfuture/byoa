@@ -4,6 +4,7 @@ import fetch from 'cross-fetch';
 
 import GameGrid from "../components/Grid";
 import { createApiUrl } from "../domain/api";
+import { useAgentContext } from "../components/AgentContext";
 
 
 const fetchGameState = async () => {
@@ -14,6 +15,15 @@ const fetchGameState = async () => {
     return response.json();
 };
 
+
+
+const fetchMoveRequest = async (contractAddress: string) => {
+    const response = await fetch(createApiUrl('user/move-request?contractAddress=' + contractAddress));
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.text();
+};
 // actually not neessary
 // Function to send POST request
 // const postGameMove = async (moveData: any) => {
@@ -39,21 +49,46 @@ const Game: React.FC = () => {
         queryFn: fetchGameState,
     });
 
+    const { agentByContractAddress } = useAgentContext();
+
+
 
     return (
-        <div>
+        <div >
             {
                 !isLoading && data && <GameGrid baseGrid={data.grid} players={data.players} />
             }
 
             {isLoading && 'Loading...'}
 
-            <button className="btn btn-primary"
-                onClick={() => {
-                    refetch();
-                    // postGameMove({ player: 'player-1', move: { x: 1, y: 0 } });
-                }}
-            >Refresh</button>
+            <div className="flex gap-1">
+                {
+                    Object.keys(agentByContractAddress)
+                        .map(contractAddress => {
+                            const agent = agentByContractAddress[contractAddress];
+                            return (
+                                <button className="btn btn-primary"
+                                    onClick={() => {
+                                        fetchMoveRequest(contractAddress)
+                                            .then(results => {
+                                                console.log('results', results)
+                                            });
+                                    }}
+                                >Ask {agent?.name} To Move</button>
+                            )
+                        })
+                }
+
+
+                <button className="btn btn-primary"
+                    onClick={() => {
+                        refetch();
+                        // postGameMove({ player: 'player-1', move: { x: 1, y: 0 } });
+                    }}
+                >Refresh</button>
+
+            </div>
+
         </div>
     )
 }

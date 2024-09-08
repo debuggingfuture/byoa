@@ -301,10 +301,10 @@ const ChatContainer = () => {
             {/* {
                 !client && <button onClick={initXmtp}>Connect to XMTP</button>
             } */}
-
+            {/* 
             {
                 xmtpClient && (<div className="badge">XMTP connected</div>)
-            }
+            } */}
             <br />
 
             {

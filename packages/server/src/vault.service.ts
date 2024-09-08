@@ -22,9 +22,10 @@ export class VaultService {
 
   private agentByAddress = new Map<string, any>();
 
-  async createAgent(contractAddress: string, ownerAddress:string): Promise<any> {
+  async createAgent(contractAddress: string, ownerAddress:string, agentProps:any): Promise<any> {
     const { privateKey, account} = createShadowInboxAccount();
     const agent = {
+      ...agentProps||{},
       ownerAddress,
       contractAddress,
       inboxAddress: account.address,
@@ -32,6 +33,11 @@ export class VaultService {
     }
     this.agentByAddress.set(contractAddress, agent);
     return agent;
+  }
+
+
+   getAgent(contractAddress: string): any {
+    return this.agentByAddress.get(contractAddress);
   }
 
   

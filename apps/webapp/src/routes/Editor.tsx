@@ -207,12 +207,18 @@ const DeployControl = ({ agentId, agent, systemPrompt }: { agentId: string, agen
         console.log('Deploying agents',);
 
 
-        const { abi, argsFactory, bytecode } = BY_TEMPLATE.simple;
+        // const template = BY_TEMPLATE.simple;
+        const template = BY_TEMPLATE.agent;
+
+        const { abi, argsFactory, bytecode } = template;
 
         const deployParams = {
             abi,
             bytecode,
-            // args: argsFactory(systemPrompt.prompt),
+            args: argsFactory({
+                prompt: systemPrompt.prompt,
+                choice: "up"
+            }),
 
         } as DeployContractParameters;
 
@@ -237,9 +243,12 @@ const DeployControl = ({ agentId, agent, systemPrompt }: { agentId: string, agen
                 inboxAddress: registerResults?.inboxAddress,
             }
             console.log('add agent', agent)
+
+            agentByContractAddress[contractAddress] = agentData;
+
             setAgentByContractAddress({
                 ...agentByContractAddress,
-                [contractAddress]: agentData
+                // [contractAddress]: agentData
             });
 
         }
@@ -317,7 +326,7 @@ const AIAgentFlowEditor: React.FC = () => {
             id: choiceId,
             type: NodeType.Choice,
             position: {
-                x: 500,
+                x: 500 + agents.length * 500,
                 y: 600
             },
             data: {
@@ -361,7 +370,7 @@ const AIAgentFlowEditor: React.FC = () => {
         setEdges((edges: unknown) => addEdge(newEdge as any, edges as any) as any)
 
 
-    }, []);
+    }, [agents]);
 
     const onConnect = useCallback(
         (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -557,20 +566,31 @@ const AIAgentFlowEditor: React.FC = () => {
 
     const addNewScript = useCallback((agentId: string) => {
 
-        const scirptId = `script-${agentId}`;
+        const scriptId = `script-${agentId}`;
 
         const position = { x: 200 + 750 * agents.length + Math.random() * 10, y: 300 * agents.length + Math.random() * 10 };
 
         const scriptNode: Node = {
-            id: scirptId,
+            id: scriptId,
             type: NodeType.Script,
             position,
             data: {
             },
         };
 
+        const newEdge: Edge = {
+            id: `edge-${agentId}-script`,
+            type: EdgeType.Button,
+            source: agentId,
+            target: scriptId,
+            markerEnd: { type: MarkerType.ArrowClosed },
+        };
+
 
         setNodes((nds) => nds.concat(...[scriptNode] as any[]));
+
+        setEdges((edges: unknown) => addEdge(newEdge as any, edges as any) as any)
+
 
     }, [agents])
 

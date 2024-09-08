@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 
 import { DataService } from './data.service';
 
@@ -22,9 +22,11 @@ export class UserController {
    */
 
   @Get('/move-request')
-  async postMove(): Promise<any> {
+  async postMove(@Query() query): Promise<any> {
+    console.log('query', query)
+    const contractAddress = query.contractAddress || "0x9e6fc3ef8850f97d7ffe5562a290c071d541bbfb" as `0x${string}`;
 
-    this.userService.sendDONRequest();
+    this.userService.sendDONRequest(contractAddress);
   }
 
 

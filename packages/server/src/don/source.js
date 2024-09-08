@@ -7,7 +7,7 @@
 // https://functions.chain.link/optimism-sepolia/231
 
 // make HTTP request
-const countryCode = args[0];
+const direction = args[0];
 const url = "https://test.geist.network/game/move";
 
 
@@ -17,11 +17,25 @@ console.log(`HTTP POST Request to ${url}`);
 // TODO
 const idempotentKey = "player-1-demo";
 
+
+// TODO other directions
+//  This payload could come from contract instead
+let x = 0;
+let y = 0;
+
+if (direction === 'up') {
+    y = 1;
+}
+if (direction === 'down') {
+    y = -1;
+}
+// TODO use header
 const payload = {
+    idempotentKey,
     "playerKey": "player-1",
     "position": {
-        "x": 0,
-        "y": 1
+        x,
+        y
     }
 }
 
@@ -55,10 +69,12 @@ if (!gameResponseData) {
 console.log("response", gameResponseData);
 
 // result is in JSON object
-const result = {
-    ...gameResponseData
-};
+// const result = {
+//     ...gameResponseData
+// };
 
-// Use JSON.stringify() to convert from JSON object to JSON string
-// Finally, use the helper Functions.encodeString() to encode from string to bytes
-return Functions.encodeString(JSON.stringify(result));
+return Functions.encodeString(gameResponseData)
+
+// // Use JSON.stringify() to convert from JSON object to JSON string
+// // Finally, use the helper Functions.encodeString() to encode from string to bytes
+// return Functions.encodeString(JSON.stringify(result));

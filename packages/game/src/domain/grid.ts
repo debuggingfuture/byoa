@@ -44,14 +44,13 @@ export const OVERLAY_BY_TYPE = {
 
 export const randomizeDecoration = () => {
     const random = Math.random();
-    if (random < 0.1) return CellType.Rock;
+    
+    if (random < 0.5) return CellType.Bone;
+    if (random < 0.15) return CellType.Rock;
     if (random < 0.3) return CellType.Flower;
     if (random < 0.6) return CellType.Plain;
     // TODO only after dog?
-    if (random < 0.65) return CellType.Poop;
-    if (random < 0.95) return CellType.Bone;
-
- 
+    if (random < 0.7) return CellType.Poop;
  
     return CellType.Grass;
 }

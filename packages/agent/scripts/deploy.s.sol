@@ -40,14 +40,20 @@ contract Deploy is Script {
 
     function deployCFAgent() public  returns (AgentTemplate agent) {
         // https://docs.chain.link/chainlink-functions/tutorials/api-query-parameters
-        address routerAddress = 0xb83E47C2bC239B3bf370bc41e1459A34b41238D0;
+
+        // //  sepolia
+        // address routerAddress = 0xb83E47C2bC239B3bf370bc41e1459A34b41238D0;
+
+        // optimism sepolia
+        address routerAddress = 0xC17094E3A1348E5C7544D4fF8A36c28f2C6AAE28;
+
 
         uint256 deployerPrivateKey = vm.envUint("DEPLOYER_WALLET_PRIVATE_KEY");
         address deployerAddress = vm.rememberKey(deployerPrivateKey);
         console2.log("deployer address", deployerAddress);
         vm.startBroadcast(deployerAddress);
 
-        agent  = new AgentTemplate(routerAddress);
+        agent  = new AgentTemplate(routerAddress, "up");
 
 
         // agent.registerFunction("sayHi", "function sayHi() public pure returns (string memory) { return 'Hi!'; }");

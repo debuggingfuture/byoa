@@ -3,6 +3,8 @@ import { User, MessageCircle, Send } from 'lucide-react';
 import { Message, Recipient } from '../domain/inbox';
 import { useConversations, useMessages, useStartConversation } from '@xmtp/react-sdk';
 import { asShortAddress } from './utils';
+import { BY_TEMPLATE } from '../adapters/agent-contract';
+import { useWatchContractEvent } from 'wagmi';
 
 
 
@@ -70,6 +72,14 @@ const MessageThread = ({ recipient, filteredMessages, avatarUrl }: { recipient: 
 
 const MessageThreadContainer = ({ recipient, conversation }: { recipient: any, conversation: any }) => {
 
+    // useWatchContractEvent({
+    //     address: recipient.contractAddress,
+    //     abi: BY_TEMPLATE.agent.abi,
+    //     eventName: 'EmotionUpdated',
+    //     onLogs(logs: any[]) {
+    //         console.log('New logs!', logs)
+    //     },
+    // })
 
     const { error, messages, isLoading } = useMessages(conversation, {
         // onError,

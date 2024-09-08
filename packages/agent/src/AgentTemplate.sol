@@ -24,19 +24,15 @@ contract AgentTemplate is FunctionsClient, ConfirmedOwner {
     bytes public s_lastError;
 
 
-
     string[] public messages;
-
+    string public choice;
     
     event MessageAdded(string message);
+    event EmotionUpdated(string emotion);
 
     mapping (string => string) public avatarUrlByEmotion;    
 
     string currentEmotion;
-
-
-
-
 
 
     error UnexpectedRequestID(bytes32 requestId);
@@ -44,8 +40,11 @@ contract AgentTemplate is FunctionsClient, ConfirmedOwner {
     event Response(bytes32 indexed requestId, bytes response, bytes err);
 
     constructor(
-        address router
-    ) FunctionsClient(router) ConfirmedOwner(msg.sender) {}
+        address router,
+        string memory _choice
+    ) FunctionsClient(router) ConfirmedOwner(msg.sender) {
+        choice = _choice;
+    }
 
 
     // TODO owner only
@@ -55,8 +54,9 @@ contract AgentTemplate is FunctionsClient, ConfirmedOwner {
     }
 
 
-    function updateEmoption(string memory emotion) public {
+    function updateEmotion(string memory emotion) public {
         currentEmotion = emotion;
+        emit EmotionUpdated(emotion);
     }
 
 
@@ -66,7 +66,7 @@ contract AgentTemplate is FunctionsClient, ConfirmedOwner {
      * @param encryptedSecretsUrls Encrypted URLs where to fetch user secrets
      * @param donHostedSecretsSlotID Don hosted secrets slotId
      * @param donHostedSecretsVersion Don hosted secrets version
-     * @param args List of arguments accessible from within the source code
+     * @param _args List of arguments accessible from within the source code
      * @param bytesArgs Array of bytes arguments, represented as hex strings
      * @param subscriptionId Billing ID
      */
@@ -75,7 +75,8 @@ contract AgentTemplate is FunctionsClient, ConfirmedOwner {
         bytes memory encryptedSecretsUrls,
         uint8 donHostedSecretsSlotID,
         uint64 donHostedSecretsVersion,
-        string[] memory args,
+        // skipped args
+        string[] memory _args,
         bytes[] memory bytesArgs,
         uint64 subscriptionId,
         uint32 gasLimit,
@@ -91,6 +92,12 @@ contract AgentTemplate is FunctionsClient, ConfirmedOwner {
                 donHostedSecretsVersion
             );
         }
+
+//       use onchain state
+        string[] memory args = new string[](1);
+        args[0] = choice;
+
+
         if (args.length > 0) req.setArgs(args);
         if (bytesArgs.length > 0) req.setBytesArgs(bytesArgs);
         s_lastRequestId = _sendRequest(
@@ -100,7 +107,7 @@ contract AgentTemplate is FunctionsClient, ConfirmedOwner {
             donID
         );
 
-        addMessage("hi there, I just moved");
+        addMessage("Made my move!");
         return s_lastRequestId;
     }
 
@@ -145,6 +152,16 @@ contract AgentTemplate is FunctionsClient, ConfirmedOwner {
         }
         s_lastResponse = response;
         s_lastError = err;
+
+
+        // from response, update emotion
+
+         // emotionByPlayerKey
+        // if(response == "0xe15395e44debe76ca688b80bf3a5ab3bb82c5ca9ec70aaa8339f38e9ce74b11a") {
+        updateEmotion("angry");
+        // }
+
+
         emit Response(requestId, s_lastResponse, s_lastError);
     }
 }

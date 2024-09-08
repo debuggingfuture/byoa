@@ -102,6 +102,8 @@ export const deriveEmotionByPlayerKey = (gameState:GameState)=>{
                 const { role, position }= player;
     
                 const cell = grid.find(cell => cell.x === position.x && cell.y === position.y);
+
+                console.log('wrong cell', cell)
     
                 return [player.key, deriveEmotionWithRole(role, cell.type)]
             }

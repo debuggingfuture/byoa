@@ -80,15 +80,17 @@ export const subscribe = async ({
       // create by subscription owner
 
       try {
-        const add = await subscriptionManager.addConsumer({ subscriptionId, consumerAddress });
-      // subscriptionManager
-      console.log('ok', subscriptionManager, add);
+         await subscriptionManager.addConsumer({ subscriptionId, consumerAddress });
+        console.log('consumer added', subscriptionId, consumerAddress);
+
+      return subscriptionManager;
 
       } catch(err){
         // could also error if already authorized
         console.log('err', err);
       }
       
+
 }
 
 
@@ -102,9 +104,8 @@ export class UserService {
 
     }
 
-    async initXmtp(agent:any){
-
-      // TODO from vault
+    async createXmtpClient(agent:any){
+   // TODO from vault
       const {id, name, inboxPrivateKey, ownerAddress} = agent;
       const account = privateKeyToAccount(inboxPrivateKey);
       let signer = createWalletClient({
@@ -112,48 +113,67 @@ export class UserService {
         chain: this.chain,
         transport: http(),
       });
-      // auto register on network
-      const xmtp = await createXmtp(signer);
-      
-      // say hi
-      const conversation = await xmtp.conversations.newConversation(
-        ownerAddress
-        // "0x3F11b27F323b62B159D2642964fa27C46C841897",
-      );
+      //  will auto register on network
+      return await createXmtp(signer);
+    }
 
+    async initXmtp(agent:any){
+
+      const {id, name, inboxPrivateKey, ownerAddress} = agent;
+      const xmtpClient =await this.createXmtpClient(agent);
       const message = `GM! my name is ${name}. I'm your agent on XMTP network`;
+ 
+      // say hi
+      const conversation = await xmtpClient.conversations.newConversation(
+        ownerAddress
+      );
+      await conversation.send(message);
 
-      conversation.send(message);
 
-
-      return xmtp;
+      return xmtpClient;
     }
 
 
-    async sendDONRequest(){
-      const abi = AgentTemplate.abi;
-        const args = ["JP"];
+    async sendDONRequest(consumerAddress:`0x${string}`){
+
+        console.log('send dom request to', consumerAddress);
+        const abi = AgentTemplate.abi;
+
+      // TODO load from state
+        const args = ["up"];
         const gasLimit = 300000;
-        const consumerAddress = "0x9e6fc3ef8850f97d7ffe5562a290c071d541bbfb";
 
+
+        /** sepolia **/
+        // // TODO inside constructor
+        // const routerAddress = "0xb83E47C2bC239B3bf370bc41e1459A34b41238D0";
+
+        // const linkTokenAddress = "0x779877A7B0D9E8603169DdbD7836e478b4624789";
+        // // const donId = "fun-ethereum-sepolia-1";
+        // const donId = "0x66756e2d657468657265756d2d7365706f6c69612d3100000000000000000000";
+
+        // const rpcUrl = "https://rpc.sepolia.org";
+        // const subscriptionId = 3461;
+
+        /** optimism sepolia **/
         // TODO inside constructor
-        const routerAddress = "0xb83E47C2bC239B3bf370bc41e1459A34b41238D0";
+        const routerAddress = "0xC17094E3A1348E5C7544D4fF8A36c28f2C6AAE28";
+        const linkTokenAddress = "0xE4aB69C077896252FAFBD49EFD26B5D171A32410";
+        // const donId = "fun-optimism-sepolia-1";
+        const donId = "0x66756e2d6f7074696d69736d2d7365706f6c69612d3100000000000000000000";
 
-        const linkTokenAddress = "0x779877A7B0D9E8603169DdbD7836e478b4624789";
-        // const donId = "fun-ethereum-sepolia-1";
-        const donId = "0x66756e2d657468657265756d2d7365706f6c69612d3100000000000000000000";
-        const explorerUrl = "https://sepolia.etherscan.io";
+        const rpcUrl = "https://sepolia.optimism.io";
+        const subscriptionId = 231;
+
+
         const encryptedSecretsUrls = "0x";
         const donHostedSecretsSlotID = 0;
         const donHostedSecretsVersion = 0;
         const bytesArgs = [];
-        const subscriptionId = 3461;
 
         const ownerPrivateKey = process.env.DEPLOYER_WALLET_PRIVATE_KEY as `0x${string}`;
 
         const account =  privateKeyToAccount(ownerPrivateKey);
-
-        const rpcUrl = "https://rpc.sepolia.org";
 
         const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
 
@@ -161,6 +181,9 @@ export class UserService {
         const signer = wallet.connect(provider)
         // execute at dist
 
+
+        // For easier dev.
+        // TODO pre-load from ipfs content instead
         const source = fs
         .readFileSync(path.resolve(__dirname, "../src/don/source.js"))
         .toString();
@@ -185,14 +208,14 @@ export class UserService {
 
         console.log("\nEstimate request costs...");
 
-        const subscribeResults = await subscribe({
+        await subscribe({
           subscriptionId,
           consumerAddress,
           signer,
           linkTokenAddress,
           routerAddress
         })        
-        console.log('subscribe', subscribeResults);
+        console.log('subscribe done');
       
       const { request } = await publicClient.simulateContract({
         account,
@@ -221,12 +244,17 @@ export class UserService {
       hash: results,
      })
      console.log('completed')
-const readResults = await publicClient.readContract({
-  address: consumerAddress,
-  abi,
-  functionName: 's_lastResponse',
 
-});
+     await new Promise((resolve)=>setTimeout(resolve, 10000));
+
+
+    // TODO wait before read
+    const readResults = await publicClient.readContract({
+      address: consumerAddress,
+      abi,
+      functionName: 's_lastResponse',
+
+    });
 
             
     const readError = await publicClient.readContract({
@@ -237,17 +265,11 @@ const readResults = await publicClient.readContract({
     });
 
 
-
-
-
     console.log('readResults', hexToString(readResults as Hex));
 
             
     console.log('readError', readError)
-        
-        // 0x66756e2d657468657265756d2d7365706f6c69612d3100000000000000000000
 
-        const router = '0xb83E47C2bC239B3bf370bc41e1459A34b41238D0';
 
     }
 
