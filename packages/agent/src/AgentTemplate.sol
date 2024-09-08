@@ -32,7 +32,7 @@ contract AgentTemplate is FunctionsClient, ConfirmedOwner {
 
     mapping (string => string) public avatarUrlByEmotion;    
 
-    string currentEmotion;
+    string public currentEmotion;
 
 
     error UnexpectedRequestID(bytes32 requestId);

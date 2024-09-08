@@ -4,7 +4,8 @@ import { Message, Recipient } from '../domain/inbox';
 import { useConversations, useMessages, useStartConversation } from '@xmtp/react-sdk';
 import { asShortAddress } from './utils';
 import { BY_TEMPLATE } from '../adapters/agent-contract';
-import { useWatchContractEvent } from 'wagmi';
+import { usePublicClient, useReadContract, useWatchContractEvent } from 'wagmi';
+import { Emotion } from '@repo/game';
 
 
 
@@ -70,30 +71,49 @@ const MessageThread = ({ recipient, filteredMessages, avatarUrl }: { recipient: 
 }
 
 
+
+
 const MessageThreadContainer = ({ recipient, conversation }: { recipient: any, conversation: any }) => {
 
     // use the contract one
 
-    const avatarUrl = recipient.avatarUrl || "https://avatars.githubusercontent.com/u/14088295?v=4";
+    const [avatarUrl, setAvatarUrl] = useState<string>(recipient.avatarUrl || "https://avatars.githubusercontent.com/u/14088295?v=4");
 
-    console.log('watch', recipient.contractAddress)
+    const avatarUrlByEmotion = recipient.avatarUrlByEmotion || {};
 
-    useWatchContractEvent({
+    const publicClient = usePublicClient();
+
+    const { data: currentEmotion } = useReadContract({
         address: recipient.contractAddress,
         abi: BY_TEMPLATE.agent.abi,
-        eventName: 'EmotionUpdated',
-        onLogs(logs: any[]) {
-            console.log('New logs!', logs)
-            if (logs.length > 0) {
-                const event = logs[0];
-                const { args } = event;
-                console.log('args', args)
-                args.emotion;
-            }
-
-            // TODO update avatarUrl
-        },
+        functionName: 'currentEmotion',
+        args: [],
     })
+
+    console.log('watch', currentEmotion);
+
+
+    useEffect(() => {
+        console.log('avatarUrlByEmotion', avatarUrlByEmotion, currentEmotion);
+        setAvatarUrl(avatarUrlByEmotion[currentEmotion as Emotion] || avatarUrlByEmotion['Neutral'])
+    }, [currentEmotion])
+
+    // useWatchContractEvent({
+    //     address: recipient.contractAddress,
+    //     abi: BY_TEMPLATE.agent.abi,
+    //     eventName: 'EmotionUpdated',
+    //     onLogs(logs: any[]) {
+    //         console.log('New logs!', logs)
+    //         if (logs.length > 0) {
+    //             const event = logs[0];
+    //             const { args } = event;
+    //             console.log('args', args)
+    //             setAvatarUrl(avatarUrlByEmotion[args.emotion] || avatarUrlByEmotion['Neutral'])
+    //         }
+
+    //         // TODO update avatarUrl
+    //     },
+    // })
 
     const { error, messages, isLoading } = useMessages(conversation, {
         // onError,
@@ -257,7 +277,7 @@ const Inbox: React.FC<InboxProps> = ({ recipients, sendXmtpMessage }: InboxProps
             </div>
 
             {/* Chat area */}
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col h-10/12">
 
                 {selectedRecipient ? (
                     <>

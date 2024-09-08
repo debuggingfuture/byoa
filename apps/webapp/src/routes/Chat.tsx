@@ -111,7 +111,9 @@ const InboxContainer = () => {
                 id: agent.id,
                 name,
                 address: inboxAddress!,
-                avatarUrl: avatarUrlByEmotion?.[Emotion.Neutral] as string || name || 'Agent'
+                avatarUrl: avatarUrlByEmotion?.[Emotion.Neutral] as string || name || 'Agent',
+                avatarUrlByEmotion,
+                contractAddress
             }
         })
 

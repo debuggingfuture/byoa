@@ -61,7 +61,7 @@ const Game: React.FC = () => {
 
             {isLoading && 'Loading...'}
 
-            <div className="flex gap-1">
+            <div className="flex gap-2 p-2">
                 {
                     Object.keys(agentByContractAddress)
                         .map(contractAddress => {
