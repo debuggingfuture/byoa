@@ -72,14 +72,28 @@ const MessageThread = ({ recipient, filteredMessages, avatarUrl }: { recipient: 
 
 const MessageThreadContainer = ({ recipient, conversation }: { recipient: any, conversation: any }) => {
 
-    // useWatchContractEvent({
-    //     address: recipient.contractAddress,
-    //     abi: BY_TEMPLATE.agent.abi,
-    //     eventName: 'EmotionUpdated',
-    //     onLogs(logs: any[]) {
-    //         console.log('New logs!', logs)
-    //     },
-    // })
+    // use the contract one
+
+    const avatarUrl = recipient.avatarUrl || "https://avatars.githubusercontent.com/u/14088295?v=4";
+
+    console.log('watch', recipient.contractAddress)
+
+    useWatchContractEvent({
+        address: recipient.contractAddress,
+        abi: BY_TEMPLATE.agent.abi,
+        eventName: 'EmotionUpdated',
+        onLogs(logs: any[]) {
+            console.log('New logs!', logs)
+            if (logs.length > 0) {
+                const event = logs[0];
+                const { args } = event;
+                console.log('args', args)
+                args.emotion;
+            }
+
+            // TODO update avatarUrl
+        },
+    })
 
     const { error, messages, isLoading } = useMessages(conversation, {
         // onError,
@@ -103,9 +117,6 @@ const MessageThreadContainer = ({ recipient, conversation }: { recipient: any, c
     console.log('filteredMessages', filteredMessages)
 
 
-    // use the contract one
-
-    const avatarUrl = recipient.avatarUrl || "https://avatars.githubusercontent.com/u/14088295?v=4";
 
     return (
         <MessageThread recipient={recipient} filteredMessages={filteredMessages}

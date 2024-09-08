@@ -125,7 +125,6 @@ const InboxContainer = () => {
     }, Object.keys(agentByContractAddress));
 
 
-
     // TODO recipients = curated + existing recipeints
     const { canMessage } = useCanMessage();
 
@@ -318,24 +317,17 @@ const ChatContainer = () => {
 }
 
 
-const contentTypeConfigs = [
-    attachmentContentTypeConfig,
-    reactionContentTypeConfig,
-    replyContentTypeConfig,
-];
-
-
 function Chat() {
     return (
         <div className="App">
-            <XMTPProvider contentTypeConfigs={contentTypeConfigs}>
-                <h2 className="text-lg font-bold">
-                    Talk to your newly created agent!
-                </h2>
-                <ChatContainer />
+
+            <h2 className="text-lg font-bold">
+                Talk to your newly created agent!
+            </h2>
+            <ChatContainer />
 
 
-            </XMTPProvider>
+            {/* </XMTPProvider> */}
         </div>
     );
 }

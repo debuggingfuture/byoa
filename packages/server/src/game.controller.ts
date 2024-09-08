@@ -104,6 +104,7 @@ export class GameController {
       return;
     }
     
+    this.idempotentKeys.add(idempotentKey);
     const gameState = this.gameService.applyAction(dto);
 
     // TODO calculate boundaries / rocks etc 
