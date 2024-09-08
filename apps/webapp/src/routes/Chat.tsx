@@ -25,11 +25,6 @@ import {
 } from "@xmtp/react-sdk";
 
 // import { ContentTypeId } from "@xmtp/content-type-primitives";
-// import {
-//     ApiUrls,
-//     XmtpEnv,
-
-// } from "@xmtp/xmtp-js";
 import { EthWalletProvider } from "@lit-protocol/lit-auth-client";
 
 import * as ethers from 'ethers';
@@ -59,29 +54,6 @@ import { Emotion } from '@repo/game';
 // https://github.com/LIT-Protocol/Issues-and-Reports/issues/17
 
 
-const MessagesList = ({ conversation }: { conversation: any }) => {
-    const { messages } = useMessages(conversation);
-
-    return (
-        <div>
-            Messages {messages.length}
-            {
-                messages.map(
-                    (message: any) => {
-                        const { walletAddress, content } = message;
-                        // content could be objects
-                        return (
-                            <div key={message.id}>
-                                {walletAddress}
-                                <span>{' | '}</span>
-                                {content?.content || content}
-                            </div>
-                        )
-                    }
-                )
-            }
-        </div>)
-}
 
 // TODO optimize to avoid re-render
 
@@ -117,36 +89,11 @@ const InboxContainer = () => {
             }
         })
 
-        // Sample data for testing
-        return [
-            { id: '1', name: 'Alice', avatar: 'A', address: '0x7848D06245Ec2de45Ed9BB9853E8346030B1dd4A' },
-            { id: '2', name: 'Bob', avatar: 'B', address: '0x3F11b27F323b62B159D2642964fa27C46C841897' },
-        ];
-
 
     }, Object.keys(agentByContractAddress));
 
 
-    // TODO recipients = curated + existing recipeints
     const { canMessage } = useCanMessage();
-
-
-    // TODO cannot avoid xmtp deps, move inside
-    useEffect(() => {
-        console.log('isLoading', xmtpClient, isLoading)
-        console.log('isLoadingStartConversation', isLoadingStartConversation)
-        if (recipients.length === 0) {
-            return;
-        }
-        console.log('start', recipients, conversations, conversations?.[0]);
-
-
-
-        // )
-
-    }, [])
-
-
 
 
     const sendXmtpMessage = async (conversation: any, messageContent: string) => {
@@ -212,54 +159,6 @@ const ChatContainer = () => {
     const XMTP_OPTIONS = {
         env: "dev" as "dev",
         persistConversations: true,
-    }
-
-
-
-
-    // const account = useAccount();
-    // console.log('account', account);
-
-    const provider = new ethers.providers.JsonRpcProvider({
-        skipFetchSetup: true,
-        url: LIT_RPC.CHRONICLE_YELLOWSTONE,
-    });
-
-
-
-    const setup = async (ethersSigner: any) => {
-        console.log('setup');
-        // const litNodeClient = new LitNodeClient({
-        //     litNetwork: LitNetwork.DatilDev,
-        //     debug: false,
-        // });
-        // await litNodeClient.connect();
-
-        console.log('connected');
-
-
-        const wagmiClient = useWagmiClient();
-        // // https://github.com/LIT-Protocol/Issues-and-Reports/issues/17
-        // const network = await provider.getNetwork();
-        // // invalid public or private key (argument="key", value="[REDACTED]", code=INVALID_ARGUMENT, version=signing-key/5.7.0)
-        // const pkpSessionSigs = await litNodeClient.getPkpSessionSigs({
-        //     pkpPublicKey: LIT_PKP_PUBLIC_KEY,
-        //     authMethods: [
-        //         await EthWalletProvider.authenticate({
-        //             signer: ethersSigner,
-        //             litNodeClient,
-        //             expiration: new Date(Date.now() + 1000 * 60 * 10).toISOString(), // 10 minutes
-        //         }),
-        //     ],
-        //     resourceAbilityRequests: [
-        //         {
-        //             resource: new LitActionResource("*"),
-        //             ability: LitAbility.LitActionExecution,
-        //         },
-        //     ],
-        //     expiration: new Date(Date.now() + 1000 * 60 * 10).toISOString(), // 10 minutes
-        // });
-
     }
 
 

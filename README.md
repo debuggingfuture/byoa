@@ -24,7 +24,7 @@ This tool helps us to deploy on-chain AI agents with guardrails and trustless me
 
 ## How it's made
 
-BYOA supports deploying agents on mutliple EVM networks, namely we provide templates deployable for
+BYOA supports and deploying agents on mutliple EVM networks, namely we provide templates deployable for
 - EVM L1/L2, e.g. Optimism Sepolia (Testnet)
 - Galadriel (L1 for AI)
 
@@ -34,14 +34,16 @@ For the game demo, there is a custom game server built with nestjs which will co
 
 With use of Chainlink functions, we allow on-chain NPCs to invoke our endpoint and create movement. Agent contract is registered as consumer of chainlink function. Thus after chainlink nodes invoke game API, result is written back to the smart contract. In our case, emotion of on-chain AI agent will be updated if our server find the character step on a poop. 
 
-XMTP is used to community between user and agents. With a shadow inbox account, accounts also able to send XMTP message via our server.  An inbox account is created for each agent.
-This part of the flow can be replaced via Lit action which automate the signing vault with private key not exposed.
-Once XIP-44 is implemented, messages can be sent to/from contract account of Agent directly.
+XMTP is used to communicate between user and agents. With a shadow inbox account, accounts also able to send XMTP message via our server.  An inbox account is created for each agent contract. Once XIP-44 is implemented, messages can be sent to/from contract account of Agent directly.
+
+Envio is used to listen to events from the agent contracts and update game state accordingly.
+
+To make the agent more autonomous, Lit action can be used so once user granted rights, server can programmably trigger trustless execution of contracts 
 
 
 ### Future Potentials
 - We could further expand customizing of agents, such as using Controlnet with stable diffusion to automatically create different expressions for an agent.  
-- Agent can be made fully autonomous with programmable keys so any server can trigger trustless execution of contracts 
+
 
 
 ![alt text](image.png)

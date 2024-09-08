@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { applyMove, findNewMovePosition, generateBaseGrid } from '@repo/game';
 import * as fs from 'fs';
 
 // import AgentTemplate from '../../agent/out/AgentTemplate.sol/AgentTemplate.json';
@@ -12,11 +11,6 @@ import * as path from 'path';
 
 import {
   SubscriptionManager,
-  simulateScript,
-  ResponseListener,
-  ReturnType,
-  decodeResult,
-  FulfillmentCode,
 } from '@chainlink/functions-toolkit';
 import * as ethers from 'ethers';
 
@@ -103,7 +97,7 @@ export class UserService {
     constructor(){
 
     }
-
+    
     async createXmtpClient(agent:any){
    // TODO from vault
       const {id, name, inboxPrivateKey, ownerAddress} = agent;

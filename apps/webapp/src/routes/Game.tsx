@@ -5,8 +5,10 @@ import fetch from 'cross-fetch';
 import GameGrid from "../components/Grid";
 import { createApiUrl } from "../domain/api";
 import { useAgentContext } from "../components/AgentContext";
-
-
+import { clientToSigner, useEthersSigner } from "../adapters/signer";
+import { useEffect } from "react";
+import * as LitJsSdk from "@lit-protocol/lit-node-client";
+import { LitNetwork } from "@lit-protocol/constants";
 const fetchGameState = async () => {
     const response = await fetch(createApiUrl('game/game-state'));
     if (!response.ok) {
@@ -24,23 +26,7 @@ const fetchMoveRequest = async (contractAddress: string) => {
     }
     return response.text();
 };
-// actually not neessary
-// Function to send POST request
-// const postGameMove = async (moveData: any) => {
-//     const response = await fetch(createApiUrl('game/move'), {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify(moveData),
-//     });
 
-//     if (!response.ok) {
-//         throw new Error('Failed to post game move');
-//     }
-
-//     return response.json();
-// };
 
 const Game: React.FC = () => {
 
@@ -50,6 +36,50 @@ const Game: React.FC = () => {
     });
 
     const { agentByContractAddress } = useAgentContext();
+
+    const signer = useEthersSigner();
+
+
+    // Unsupported network: datil-dev
+
+    const setup = async () => {
+
+
+        const litNodeClient = new LitJsSdk.LitNodeClient({
+            litNetwork: LitNetwork.DatilDev,
+            debug: false,
+        });
+        await litNodeClient.connect();
+    }
+
+    // const provider = new ethers.providers.JsonRpcProvider({
+    //     skipFetchSetup: true,
+    //     url: LIT_RPC.CHRONICLE_YELLOWSTONE,
+    // });
+
+
+    // useEffect(() => {
+    //     setup();
+    // }, [])
+
+    // // invalid public or private key (argument="key", value="[REDACTED]", code=INVALID_ARGUMENT, version=signing-key/5.7.0)
+    // const pkpSessionSigs = await litNodeClient.getPkpSessionSigs({
+    //     pkpPublicKey: LIT_PKP_PUBLIC_KEY,
+    //     authMethods: [
+    //         await EthWalletProvider.authenticate({
+    //             signer: ethersSigner,
+    //             litNodeClient,
+    //             expiration: new Date(Date.now() + 1000 * 60 * 10).toISOString(), // 10 minutes
+    //         }),
+    //     ],
+    //     resourceAbilityRequests: [
+    //         {
+    //             resource: new LitActionResource("*"),
+    //             ability: LitAbility.LitActionExecution,
+    //         },
+    //     ],
+    //     expiration: new Date(Date.now() + 1000 * 60 * 10).toISOString(), // 10 minutes
+    // });
 
 
 

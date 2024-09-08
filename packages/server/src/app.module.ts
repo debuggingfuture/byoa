@@ -5,11 +5,12 @@ import { GameController } from './game.controller';
 import { VaultService } from './vault.service';
 import { DataService } from './data.service';
 import { UserService } from './user.service';
+import { LitService } from './lit.service';
 import { UserController } from './user.controller';
 
 @Module({
   imports: [],
   controllers: [AppController, GameController, UserController],
-  providers: [GameService, DataService, UserService, VaultService],
+  providers: [GameService, DataService, UserService, VaultService, LitService],
 })
 export class AppModule {}
