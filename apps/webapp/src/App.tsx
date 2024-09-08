@@ -17,7 +17,7 @@ import { mainnet, optimismSepolia, sepolia } from "wagmi/chains";
 import { WagmiProvider } from "wagmi";
 import Editor from "./routes/Editor";
 import Game from "./routes/Game";
-import { defineChain } from "viem";
+import { galadrielDev } from "./domain/chain";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -31,31 +31,11 @@ const router = createBrowserRouter(
   )
 );
 
-const galadrielDev = defineChain({
-  id: 696969,
-  name: 'Galadriel Devnet',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'GAL',
-    symbol: 'GAL',
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://devnet.galadriel.com'],
-      webSocket: ['wss://devnet.galadriel.com'],
-    },
-  },
-  blockExplorers: {
-    default: { name: 'Explorer', url: 'https://explorer.galadriel.com' },
-  },
-  testnet: true,
-});
-
 const queryClient = new QueryClient();
 
 
 const wagmiConfig = getDefaultConfig({
-  appName: 'My RainbowKit App',
+  appName: 'BYOA',
   projectId: 'YOUR_PROJECT_ID',
   chains: [sepolia, optimismSepolia, galadrielDev],
   ssr: true, // If your dApp uses server side rendering (SSR)

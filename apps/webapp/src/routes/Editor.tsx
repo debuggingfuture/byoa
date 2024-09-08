@@ -71,11 +71,12 @@ const getExplorerUrl = (hash: string, type = 'tx', chainId: number = sepolia.id)
     let root = `https://sepolia.etherscan.io/${type}/`;
     if (chainId === baseSepolia.id) {
         root = `https://sepolia.basescan.org/${type}/`;
-
     }
     if (chainId === optimismSepolia.id) {
         root = `${optimismSepolia.blockExplorers.default.url}/${type}/`;
-
+    }
+    if (chainId === optimismSepolia.id) {
+        root = `https://explorer.galadriel.com/${type}/`;
     }
 
     return root + hash;
