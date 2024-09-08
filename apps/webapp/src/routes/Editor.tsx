@@ -42,6 +42,7 @@ import { PlusSquareIcon } from "lucide-react";
 import ScriptNode from '../components/ScriptNode';
 import { createApiUrl } from '../domain/api';
 import { base, baseSepolia, optimismSepolia, sepolia } from 'viem/chains';
+import { galadrielDev } from '../domain/chain';
 
 
 enum EdgeType {
@@ -75,7 +76,7 @@ const getExplorerUrl = (hash: string, type = 'tx', chainId: number = sepolia.id)
     if (chainId === optimismSepolia.id) {
         root = `${optimismSepolia.blockExplorers.default.url}/${type}/`;
     }
-    if (chainId === optimismSepolia.id) {
+    if (chainId === galadrielDev.id) {
         root = `https://explorer.galadriel.com/${type}/`;
     }
 
@@ -184,31 +185,11 @@ const DeployControl = ({ agentId, agent, systemPrompt }: { agentId: string, agen
         return response.json();
     };
 
-    // TODO give up tanstack here
-
-    // const { data: txnResult, isFetching, isSuccess } = useWaitForTransactionReceipt({
-    //     hash,
-    // })
-
-    // useEffect(() => {
-    //     refetch();
-
-    //     if (deployHash) {
-    //         // TODO find contract address before wait
-    //         // getContractAddress({ from: deployHash!, opcode: 'CREATE2' });
-
-    //     }
-
-    //     // setAgentByContractAddress()
-    //     // deployHash
-    // }, [isDeploySuccess])
+    // Don't use tanstack here
 
 
     const deployAgent = async (agentId: string) => {
-        console.log('Deploying agents',);
-
-
-        // const template = BY_TEMPLATE.simple;
+        console.log('Deploying agents');
         const template = BY_TEMPLATE.agent;
 
         const { abi, argsFactory, bytecode } = template;
@@ -216,6 +197,7 @@ const DeployControl = ({ agentId, agent, systemPrompt }: { agentId: string, agen
         const deployParams = {
             abi,
             bytecode,
+            // TODO fix choice params
             args: argsFactory({
                 prompt: systemPrompt.prompt,
                 choice: "up"
