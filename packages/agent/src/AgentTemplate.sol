@@ -13,11 +13,6 @@ import {FunctionsRequest} from "@chainlink/contracts/v0.8/functions/dev/v1_0_0/l
 // contract AgentTemplate {
 
 
-//     function sayHi() public pure returns (string memory) {
-//         return "Hi!";
-//     }
-// }
-
 // https://remix.ethereum.org/#url=https://docs.chain.link/samples/ChainlinkFunctions/FunctionsConsumerExample.sol&autoCompile=true&lang=en&optimize=false&runs=200&evmVersion=null&version=soljson-v0.8.19+commit.7dd6d404.js
 
 

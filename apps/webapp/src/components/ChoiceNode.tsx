@@ -49,7 +49,7 @@ const ChoiceNode: React.FC<NodeProps<ChoiceNodeProps>> = (props: NodeProps<Choic
             />
             <div className="bg-white wrapper p-1 w-full">
                 <div className="inner">
-                    <h3 className="text-xl text-black">💭 Choices</h3>
+                    <h3 className="text-xl text-black">💭 Action Plan</h3>
                 </div>
 
 

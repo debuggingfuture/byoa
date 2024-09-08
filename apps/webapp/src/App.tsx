@@ -2,6 +2,7 @@ import React from "react";
 import {
   createBrowserRouter,
   createRoutesFromElements,
+  Navigate,
   Route,
   RouterProvider,
 } from "react-router-dom";
@@ -23,7 +24,8 @@ const router = createBrowserRouter(
       <Route path="chat" element={<Chat />} />
       <Route path="editor" element={<Editor />} />
       <Route path="game" element={<Game />} />
-      <Route path="*" element={<div> no match</div>} />
+      <Route path="/" element={<Navigate to="/editor" />} />
+      <Route path="*" element={<Navigate to="/editor" />} />
     </Route>
   )
 );

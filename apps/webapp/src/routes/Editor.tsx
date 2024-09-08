@@ -37,6 +37,12 @@ import { useAgentContext } from '../components/AgentContext';
 
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { createApiUrl } from './Game';
+
+
+import { PlusSquareIcon } from "lucide-react";
+import ScriptNode from '../components/ScriptNode';
+
+
 enum EdgeType {
     Button = 'button',
 }
@@ -53,7 +59,8 @@ enum NodeType {
     Choice = 'choice',
     SystemPrompt = 'system-prompt',
     Avatar = 'avatar',
-    AvatarFace = 'avatar-face'
+    AvatarFace = 'avatar-face',
+    Script = 'script',
 }
 
 // Note: You have to create a new data object on a node to notify React Flow about data changes.
@@ -67,7 +74,7 @@ const nodeTypes: NodeTypes = {
     [NodeType.AvatarFace]: AvatarFaceNode,
     [NodeType.SystemPrompt]: SystemPromptNode,
     [NodeType.Choice]: ChoiceNode,
-
+    [NodeType.Script]: ScriptNode,
 
 };
 
@@ -103,6 +110,22 @@ const DeployStatus = ({ hash }: { hash: `0x${string}` }) => {
             }
 
         </div >
+    )
+}
+
+
+const AddButton = ({ onClick, label }: { onClick: any, label: React.ReactNode }) => {
+
+    return (
+
+        <button
+            onClick={onClick}
+            className="mt-4 p-2 bg-blue-500 text-white rounded"
+        >
+            <div className="flex row gap-2">
+                <PlusSquareIcon /> <span>{label}</span>
+            </div>
+        </button>
     )
 }
 
@@ -152,8 +175,14 @@ const DeployControl = ({ agentId, agent, systemPrompt }: { agentId: string, agen
     const deployAgent = async (agentId: string) => {
         console.log('Deploying agents',);
 
+
+        const { abi, argsFactory, bytecode } = BY_TEMPLATE.simple;
+
         const deployParams = {
-            ...BY_TEMPLATE.simple,
+            abi,
+            bytecode,
+            // args: argsFactory(systemPrompt.prompt),
+
         } as DeployContractParameters;
 
         console.log('deployParams', agentId, deployParams)
@@ -165,10 +194,12 @@ const DeployControl = ({ agentId, agent, systemPrompt }: { agentId: string, agen
         const results = await waitForTransactionReceipt(config, { hash });
         console.log('results', results);
         const { contractAddress } = results;
+        if (contractAddress) {
+            await fetchRegister({
+                contractAddress
+            });
 
-        await fetchRegister({
-            contractAddress
-        });
+        }
 
     }
 
@@ -432,7 +463,7 @@ const AIAgentFlowEditor: React.FC = () => {
             {
                 type: NodeType.AvatarFace,
                 data: {
-                    label: '😊',
+                    label: '😑',
                     emotion: Emotion.Neutral,
                     agentId
                 }
@@ -464,6 +495,27 @@ const AIAgentFlowEditor: React.FC = () => {
     }, [agents])
 
 
+    const addNewScript = useCallback((agentId: string) => {
+
+        const scirptId = `script-${agentId}`;
+
+        const position = { x: 200 + 750 * agents.length + Math.random() * 10, y: 300 * agents.length + Math.random() * 10 };
+
+        const scriptNode: Node = {
+            id: scirptId,
+            type: NodeType.Script,
+            position,
+            data: {
+            },
+        };
+
+
+        setNodes((nds) => nds.concat(...[scriptNode] as any[]));
+
+    }, [agents])
+
+
+
     const addNewAgent = useCallback(() => {
         const newAgent: AIAgent = {
             id: nextAgentId,
@@ -478,7 +530,6 @@ const AIAgentFlowEditor: React.FC = () => {
         const agentNode: Node = {
             id: newAgent.id,
             type: NodeType.Agent,
-            // isConnectable: true,
             position,
             data: {
                 agent: newAgent,
@@ -548,29 +599,26 @@ const AIAgentFlowEditor: React.FC = () => {
                 {/* <Controls /> */}
             </ReactFlow>
             <div className="flex justify-end p-2 gap-2">
-                <button
+                <AddButton
                     onClick={addNewAgent}
-                    className="mt-4 p-2 bg-blue-500 text-white rounded"
-                >
-                    Add Agent
-                </button>
-                <button
+                    label="Agent"
+                />
+                <AddButton
                     onClick={() => addNewAvatar(lastAgentId)}
-                    className="mt-4 p-2 bg-blue-500 text-white rounded"
-                >
-                    Add Aavtar
-                </button>
-                <button
+                    label="Avatar"
+                />
+                <AddButton
                     onClick={() => addNewChoice(lastAgentId)}
-                    className="mt-4 p-2 bg-blue-500 text-white rounded"
-                >
-                    Add Choice
-                </button>
-
+                    label="Choice"
+                />
+                <AddButton
+                    onClick={() => addNewScript(lastAgentId)}
+                    label="Script"
+                />
                 <br />
 
 
-            </div>
+            </div >
             <div className="flex">
                 {
                     agents.map((agent, i) => {
@@ -584,7 +632,7 @@ const AIAgentFlowEditor: React.FC = () => {
             </div>
 
 
-        </div>
+        </div >
     );
 };
 
